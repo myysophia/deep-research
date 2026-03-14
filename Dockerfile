@@ -14,6 +14,8 @@ RUN npm install -g pnpm@10.31.0 && pnpm install --frozen-lockfile
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+# Install pnpm for build stage
+RUN npm install -g pnpm@10.31.0
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
