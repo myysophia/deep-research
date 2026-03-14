@@ -14,10 +14,16 @@ export function parseError(err: unknown): string {
   if (isString(err)) errorMessage = err;
   if (isObject(err)) {
     const { error } = err as { error: APICallError };
-    if (error.responseBody) {
-      const response = JSON.parse(error.responseBody) as GeminiError;
-      errorMessage = `[${response.error.status}]: ${response.error.message}`;
-    } else {
+    if (error?.responseBody) {
+      try {
+        const response = JSON.parse(error.responseBody) as Partial<GeminiError>;
+        const status = response?.error?.status || "API_ERROR";
+        const message = response?.error?.message || error.message || "Unknown Error";
+        errorMessage = `[${status}]: ${message}`;
+      } catch {
+        errorMessage = `[${error.name}]: ${error.message}`;
+      }
+    } else if (error?.name || error?.message) {
       errorMessage = `[${error.name}]: ${error.message}`;
     }
   }

@@ -11,6 +11,11 @@ export function downloadFile(
   saveAs(file);
 }
 
+export function downloadBlob(content: BlobPart, filename: string, fileType: string) {
+  const file = new File([content], filename, { type: fileType });
+  saveAs(file);
+}
+
 export function formatSize(
   size: number,
   pointLength = 2,

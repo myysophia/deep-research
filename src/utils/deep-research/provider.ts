@@ -1,5 +1,6 @@
 import type { GoogleVertexProviderSettings } from "@ai-sdk/google-vertex/edge";
 import type { AzureOpenAIProviderSettings } from "@ai-sdk/azure";
+import { supportsOfficialOpenAIResponses } from "@/utils/model";
 
 export interface AIProviderOptions {
   provider: string;
@@ -52,9 +53,7 @@ export async function createAIProvider({
       baseURL,
       apiKey,
     });
-    return model.startsWith("gpt-4o") ||
-      model.startsWith("gpt-4.1") ||
-      model.startsWith("gpt-5")
+    return supportsOfficialOpenAIResponses(provider, model, baseURL)
       ? openai.responses(model)
       : openai(model, settings);
   } else if (provider === "anthropic") {

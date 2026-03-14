@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+const SAAS_MVP_ENABLED = process.env.NEXT_PUBLIC_SAAS_MVP_ENABLED === "1";
+
 export interface SettingStore {
   provider: string;
   mode: string;
@@ -97,8 +99,8 @@ interface SettingActions {
 }
 
 export const defaultValues: SettingStore = {
-  provider: "google",
-  mode: "",
+  provider: SAAS_MVP_ENABLED ? "openaicompatible" : "google",
+  mode: SAAS_MVP_ENABLED ? "proxy" : "",
   apiKey: "",
   apiProxy: "",
   thinkingModel: "gemini-2.5-pro",
@@ -116,8 +118,8 @@ export const defaultValues: SettingStore = {
   openRouterNetworkingModel: "",
   openAIApiKey: "",
   openAIApiProxy: "",
-  openAIThinkingModel: "gpt-5",
-  openAINetworkingModel: "gpt-5-mini",
+  openAIThinkingModel: SAAS_MVP_ENABLED ? "gpt-5.2-codex" : "gpt-5",
+  openAINetworkingModel: SAAS_MVP_ENABLED ? "gpt-5.2-codex" : "gpt-5-mini",
   anthropicApiKey: "",
   anthropicApiProxy: "",
   anthropicThinkingModel: "",
@@ -140,9 +142,9 @@ export const defaultValues: SettingStore = {
   azureThinkingModel: "",
   azureNetworkingModel: "",
   openAICompatibleApiKey: "",
-  openAICompatibleApiProxy: "",
-  openAICompatibleThinkingModel: "",
-  openAICompatibleNetworkingModel: "",
+  openAICompatibleApiProxy: "https://dashscope.aliyuncs.com/compatible-mode",
+  openAICompatibleThinkingModel: SAAS_MVP_ENABLED ? "qwen3.5-plus" : "",
+  openAICompatibleNetworkingModel: SAAS_MVP_ENABLED ? "qwen3.5-plus" : "",
   pollinationsApiProxy: "",
   pollinationsThinkingModel: "",
   pollinationsNetworkingModel: "",

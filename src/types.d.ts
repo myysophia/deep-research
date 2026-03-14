@@ -45,6 +45,77 @@ interface SearchTask {
   images: ImageSource[];
 }
 
+interface PaperLayoutConfig {
+  paperSize: "A4";
+  pageMargins: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+  bindingSide: "left";
+  titleFontFamily: string;
+  titleFontSize: number;
+  bodyFontFamily: string;
+  bodyFontSize: number;
+  lineSpacing: number;
+  letterSpacing: number;
+  paragraphSpacingBefore: number;
+  paragraphSpacingAfter: number;
+  firstLineIndentChars: number;
+  headerTextLeft: string;
+  headerTextRight: string;
+  footerText: string;
+  showPageNumber: boolean;
+  pageNumberPosition: "left" | "center" | "right";
+  frontMatterPageNumberStyle: "roman" | "decimal";
+  bodyPageNumberStyle: "decimal";
+}
+
+interface PaperSection {
+  id: string;
+  level: 1 | 2 | 3;
+  numbering: string;
+  heading: string;
+  markdown: string;
+}
+
+interface PaperArtifact {
+  id: string;
+  type: "table" | "mermaid";
+  title: string;
+  placementSectionId: string;
+  content: string;
+  isSyntheticData: boolean;
+  note?: string;
+  renderedSvg?: string;
+}
+
+interface ThesisTemplateMeta {
+  subtitle: string;
+  college: string;
+  major: string;
+  className: string;
+  studentName: string;
+  studentId: string;
+  advisor: string;
+  completionDate: string;
+  acknowledgements: string;
+}
+
+interface PaperDocument {
+  title: string;
+  abstractZh: string;
+  abstractEn: string;
+  keywordsZh: string[];
+  keywordsEn: string[];
+  sections: PaperSection[];
+  references: Source[];
+  artifacts: PaperArtifact[];
+  layoutConfig: PaperLayoutConfig;
+  templateMeta: ThesisTemplateMeta;
+}
+
 interface PartialJson {
   value: JSONValue | undefined;
   state:

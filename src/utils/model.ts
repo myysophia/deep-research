@@ -27,6 +27,38 @@ export function isOpenRouterFreeModel(model: string) {
   return model.endsWith(":free");
 }
 
+export function supportsOpenAIResponsesWebSearch(
+  provider: string,
+  model: string,
+  baseURL = ""
+) {
+  return supportsOfficialOpenAIResponses(provider, model, baseURL);
+}
+
+export function supportsOfficialOpenAIResponses(
+  provider: string,
+  model: string,
+  baseURL = ""
+) {
+  if (provider !== "openai") return false;
+  if (
+    !(
+      model.startsWith("gpt-4o") ||
+      model.startsWith("gpt-4.1") ||
+      model.startsWith("gpt-5")
+    )
+  ) {
+    return false;
+  }
+
+  try {
+    const url = new URL(baseURL);
+    return url.hostname === "api.openai.com";
+  } catch {
+    return false;
+  }
+}
+
 export function filterThinkingModelList(modelList: string[]) {
   const thinkingModelList: string[] = [];
   const nonThinkingModelList: string[] = [];

@@ -16,7 +16,11 @@ import {
   parseDeepResearchPromptOverrides,
   type DeepResearchPromptOverrides,
 } from "@/constants/prompts";
-import { isNetworkingModel } from "@/utils/model";
+import {
+  isNetworkingModel,
+  supportsOfficialOpenAIResponses,
+  supportsOpenAIResponsesWebSearch,
+} from "@/utils/model";
 import { ThinkTagStreamProcessor, removeJsonMarkdown } from "@/utils/text";
 import { pick, unique, flat, isFunction } from "radash";
 
@@ -219,10 +223,11 @@ class DeepResearch {
           // Enable OpenAI's built-in search tool
           if (
             provider === "model" &&
-            ["openai", "azure", "openaicompatible"].includes(taskModel) &&
-            (taskModel.startsWith("gpt-4o") ||
-              taskModel.startsWith("gpt-4.1") ||
-              taskModel.startsWith("gpt-5"))
+            supportsOpenAIResponsesWebSearch(
+              this.options.AIProvider.provider,
+              taskModel,
+              this.options.AIProvider.baseURL
+            )
           ) {
             const { openai } = await import("@ai-sdk/openai");
             return {
@@ -417,6 +422,14 @@ class DeepResearch {
       (item) => item.url
     );
 
+    const canUseFileFormatResource =
+      enableFileFormatResource &&
+      supportsOfficialOpenAIResponses(
+        this.options.AIProvider.provider,
+        this.options.AIProvider.thinkingModel,
+        this.options.AIProvider.baseURL
+      );
+
     const sourceList = enableReferences
       ? sources.map((item) => pick(item, ["title", "url"]))
       : [];
@@ -460,14 +473,14 @@ class DeepResearch {
             "",
             imageList.length > 0 && enableCitationImage,
             sourceList.length > 0 && enableReferences,
-            enableFileFormatResource,
+            canUseFileFormatResource,
             this.promptOverrides
           ),
           this.getResponseLanguagePrompt(),
         ].join("\n\n"),
       },
     ];
-    if (enableFileFormatResource) {
+    if (canUseFileFormatResource) {
       messageContent.push({
         type: "file",
         mimeType: "text/markdown",

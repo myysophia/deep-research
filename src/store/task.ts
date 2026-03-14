@@ -1,6 +1,13 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, type StorageValue } from "zustand/middleware";
 import { pick } from "radash";
+import {
+  createEmptyPaperDocument,
+  createDefaultPaperLayoutConfig,
+  createDefaultThesisTemplateMeta,
+  syncPaperDocument,
+  normalizePaperArtifacts,
+} from "@/utils/paper";
 
 export interface TaskStore {
   id: string;
@@ -18,6 +25,7 @@ export interface TaskStore {
   sources: Source[];
   images: ImageSource[];
   knowledgeGraph: string;
+  paperDocument: PaperDocument;
 }
 
 interface TaskActions {
@@ -37,9 +45,13 @@ interface TaskActions {
   updateReportPlan: (plan: string) => void;
   updateFinalReport: (report: string) => void;
   setSources: (sources: Source[]) => void;
-  setImages: (images: Source[]) => void;
+  setImages: (images: ImageSource[]) => void;
   setFeedback: (feedback: string) => void;
   updateKnowledgeGraph: (knowledgeGraph: string) => void;
+  updatePaperDocument: (paperDocument: PaperDocument) => void;
+  updatePaperLayoutConfig: (layoutConfig: Partial<PaperLayoutConfig>) => void;
+  updatePaperTemplateMeta: (templateMeta: Partial<ThesisTemplateMeta>) => void;
+  setPaperArtifacts: (artifacts: PaperArtifact[]) => void;
   clear: () => void;
   reset: () => void;
   backup: () => TaskStore;
@@ -62,6 +74,7 @@ const defaultValues: TaskStore = {
   sources: [],
   images: [],
   knowledgeGraph: "",
+  paperDocument: createEmptyPaperDocument(),
 };
 
 export const useTaskStore = create(
@@ -70,7 +83,14 @@ export const useTaskStore = create(
       ...defaultValues,
       update: (tasks) => set(() => ({ tasks: [...tasks] })),
       setId: (id) => set(() => ({ id })),
-      setTitle: (title) => set(() => ({ title })),
+      setTitle: (title) =>
+        set((state) => ({
+          title,
+          paperDocument: {
+            ...state.paperDocument,
+            title,
+          },
+        })),
       setSuggestion: (suggestion) => set(() => ({ suggestion })),
       setRequirement: (requirement) => set(() => ({ requirement })),
       setQuery: (query) => set(() => ({ query })),
@@ -103,11 +123,79 @@ export const useTaskStore = create(
       },
       updateQuestions: (questions) => set(() => ({ questions })),
       updateReportPlan: (plan) => set(() => ({ reportPlan: plan })),
-      updateFinalReport: (report) => set(() => ({ finalReport: report })),
-      setSources: (sources) => set(() => ({ sources })),
+      updateFinalReport: (report) =>
+        set((state) => ({
+          finalReport: report,
+          paperDocument: syncPaperDocument(state.paperDocument, {
+            title: state.title,
+            markdown: report,
+            sources: state.sources,
+          }),
+        })),
+      setSources: (sources) =>
+        set((state) => ({
+          sources,
+          paperDocument: syncPaperDocument(state.paperDocument, {
+            title: state.title,
+            markdown: state.finalReport,
+            sources,
+          }),
+        })),
       setImages: (images) => set(() => ({ images })),
       setFeedback: (feedback) => set(() => ({ feedback })),
       updateKnowledgeGraph: (knowledgeGraph) => set(() => ({ knowledgeGraph })),
+      updatePaperDocument: (paperDocument) =>
+        set(() => ({
+          paperDocument,
+          finalReport:
+            paperDocument.sections.length > 0
+              ? paperDocument.sections
+                  .map((section) => {
+                    const prefix = "#".repeat(section.level);
+                    const heading = section.heading.trim();
+                    return [heading ? `${prefix} ${heading}` : "", section.markdown]
+                      .filter(Boolean)
+                      .join("\n\n");
+                  })
+                  .join("\n\n")
+              : "",
+          title: paperDocument.title,
+          sources: paperDocument.references,
+        })),
+      updatePaperLayoutConfig: (layoutConfig) =>
+        set((state) => ({
+          paperDocument: {
+            ...state.paperDocument,
+            layoutConfig: {
+              ...state.paperDocument.layoutConfig,
+              ...layoutConfig,
+              pageMargins: {
+                ...state.paperDocument.layoutConfig.pageMargins,
+                ...layoutConfig.pageMargins,
+              },
+            },
+          },
+        })),
+      updatePaperTemplateMeta: (templateMeta) =>
+        set((state) => ({
+          paperDocument: {
+            ...state.paperDocument,
+            templateMeta: {
+              ...state.paperDocument.templateMeta,
+              ...templateMeta,
+            },
+          },
+        })),
+      setPaperArtifacts: (artifacts) =>
+        set((state) => ({
+          paperDocument: {
+            ...state.paperDocument,
+            artifacts: normalizePaperArtifacts(
+              artifacts,
+              state.paperDocument.sections
+            ),
+          },
+        })),
       clear: () => set(() => ({ tasks: [] })),
       reset: () => set(() => ({ ...defaultValues })),
       backup: () => {
@@ -115,8 +203,54 @@ export const useTaskStore = create(
           ...pick(get(), Object.keys(defaultValues) as (keyof TaskStore)[]),
         } as TaskStore;
       },
-      restore: (taskStore) => set(() => ({ ...taskStore })),
+      restore: (taskStore) =>
+        set(() => {
+          const paperDocument = taskStore.paperDocument
+            ? {
+                ...taskStore.paperDocument,
+                layoutConfig:
+                  taskStore.paperDocument.layoutConfig ||
+                  createDefaultPaperLayoutConfig(),
+                templateMeta:
+                  taskStore.paperDocument.templateMeta ||
+                  createDefaultThesisTemplateMeta(),
+              }
+            : syncPaperDocument(undefined, {
+                title: taskStore.title,
+                markdown: taskStore.finalReport,
+                sources: taskStore.sources,
+              });
+          return {
+            ...taskStore,
+            paperDocument,
+          };
+        }),
     }),
-    { name: "research" }
+    {
+      name: "research",
+      version: 3,
+      migrate: (persistedState: StorageValue<TaskStore & TaskActions> | any) => {
+        const state = persistedState?.state || persistedState;
+        if (!state) return defaultValues;
+
+        const paperDocument = state.paperDocument
+          ? {
+              ...state.paperDocument,
+              templateMeta:
+                state.paperDocument.templateMeta ||
+                createDefaultThesisTemplateMeta(),
+            }
+          : syncPaperDocument(undefined, {
+              title: state.title || "",
+              markdown: state.finalReport || "",
+              sources: state.sources || [],
+            });
+
+        return {
+          ...state,
+          paperDocument,
+        };
+      },
+    }
   )
 );
