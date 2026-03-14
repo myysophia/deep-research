@@ -1,0 +1,9 @@
+drop table if exists public.admin_audit_logs;
+drop table if exists public.delete_requests;
+drop table if exists public.legal_acceptances;
+drop table if exists public.quota_counters;
+drop table if exists public.usage_ledger;
+drop table if exists public.payment_orders;
+drop table if exists public.subscriptions;
+drop table if exists public.plans;
+drop function if exists public.set_updated_at();
