@@ -31,6 +31,9 @@ ENV SUPABASE_URL=https://placeholder.supabase.co
 ENV SUPABASE_ANON_KEY=placeholder-anon-key
 ENV SUPABASE_SERVICE_ROLE_KEY=placeholder-service-role-key
 
+# Set build mode to standalone for Docker deployment
+ENV NEXT_PUBLIC_BUILD_MODE=standalone
+
 RUN pnpm run build
 
 # Production image, copy all the files and run next
