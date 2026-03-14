@@ -12,8 +12,12 @@ import {
   OLLAMA_BASE_URL,
 } from "@/constants/urls";
 import { multiApiKeyPolling } from "@/utils/model";
-import { generateSignature } from "@/utils/signature";
+import { getProxyAuthToken } from "@/libs/supabase/client-auth";
 import { completePath } from "@/utils/url";
+
+const SAAS_MVP_ENABLED = process.env.NEXT_PUBLIC_SAAS_MVP_ENABLED === "1";
+const SAAS_FIXED_PROVIDER = "openaicompatible";
+const SAAS_FIXED_MODEL = "qwen3.5-plus";
 
 interface GeminiModel {
   name: string;
@@ -116,8 +120,12 @@ function useModelList() {
   }, [provider]);
 
   async function refresh(provider: string): Promise<string[]> {
-    const { accessPassword } = useSettingStore.getState();
-    const accessKey = generateSignature(accessPassword, Date.now());
+    const proxyToken = mode === "proxy" ? await getProxyAuthToken() : "";
+
+    if (SAAS_MVP_ENABLED && provider === SAAS_FIXED_PROVIDER) {
+      setModelList([SAAS_FIXED_MODEL]);
+      return [SAAS_FIXED_MODEL];
+    }
 
     if (provider === "google") {
       const { apiKey = "", apiProxy } = useSettingStore.getState();
@@ -131,7 +139,7 @@ function useModelList() {
           : "/api/ai/google/v1beta/models",
         {
           headers: {
-            "x-goog-api-key": mode === "local" ? key : accessKey,
+            "x-goog-api-key": mode === "local" ? key : proxyToken,
           },
         }
       );
@@ -159,7 +167,7 @@ function useModelList() {
           : "/api/ai/openrouter/v1/models",
         {
           headers: {
-            authorization: `Bearer ${mode === "local" ? apiKey : accessKey}`,
+            authorization: `Bearer ${mode === "local" ? apiKey : proxyToken}`,
           },
         }
       );
@@ -179,7 +187,7 @@ function useModelList() {
           : "/api/ai/openai/v1/models",
         {
           headers: {
-            authorization: `Bearer ${mode === "local" ? apiKey : accessKey}`,
+            authorization: `Bearer ${mode === "local" ? apiKey : proxyToken}`,
           },
         }
       );
@@ -212,7 +220,7 @@ function useModelList() {
         {
           headers: {
             "Content-Type": "application/json",
-            "x-api-key": mode === "local" ? apiKey : accessKey,
+            "x-api-key": mode === "local" ? apiKey : proxyToken,
             "Anthropic-Version": "2023-06-01",
             // Avoid cors error
             "anthropic-dangerous-direct-browser-access": "true",
@@ -237,7 +245,7 @@ function useModelList() {
           : "/api/ai/deepseek/v1/models",
         {
           headers: {
-            authorization: `Bearer ${mode === "local" ? apiKey : accessKey}`,
+            authorization: `Bearer ${mode === "local" ? apiKey : proxyToken}`,
           },
         }
       );
@@ -257,7 +265,7 @@ function useModelList() {
           : "/api/ai/xai/v1/models",
         {
           headers: {
-            authorization: `Bearer ${mode === "local" ? apiKey : accessKey}`,
+            authorization: `Bearer ${mode === "local" ? apiKey : proxyToken}`,
           },
         }
       );
@@ -280,7 +288,7 @@ function useModelList() {
           : "/api/ai/mistral/v1/models",
         {
           headers: {
-            authorization: `Bearer ${mode === "local" ? apiKey : accessKey}`,
+            authorization: `Bearer ${mode === "local" ? apiKey : proxyToken}`,
           },
         }
       );
@@ -303,7 +311,7 @@ function useModelList() {
           : "/api/ai/openaicompatible/v1/models",
         {
           headers: {
-            authorization: `Bearer ${mode === "local" ? apiKey : accessKey}`,
+            authorization: `Bearer ${mode === "local" ? apiKey : proxyToken}`,
           },
         }
       );
@@ -314,7 +322,7 @@ function useModelList() {
     } else if (provider === "pollinations") {
       const { pollinationsApiProxy } = useSettingStore.getState();
       const headers = new Headers();
-      if (mode === "proxy") headers.set("Authorization", `Bearer ${accessKey}`);
+      if (mode === "proxy") headers.set("Authorization", `Bearer ${proxyToken}`);
       const response = await fetch(
         mode === "proxy"
           ? "/api/ai/pollinations/models"
@@ -333,7 +341,7 @@ function useModelList() {
     } else if (provider === "ollama") {
       const { ollamaApiProxy } = useSettingStore.getState();
       const headers = new Headers();
-      if (mode === "proxy") headers.set("Authorization", `Bearer ${accessKey}`);
+      if (mode === "proxy") headers.set("Authorization", `Bearer ${proxyToken}`);
       const response = await fetch(
         mode === "proxy"
           ? "/api/ai/ollama/api/tags"

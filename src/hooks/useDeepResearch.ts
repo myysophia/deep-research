@@ -35,10 +35,17 @@ import {
   writeFinalReportPrompt,
   getSERPQuerySchema,
 } from "@/utils/deep-research/prompts";
-import { isNetworkingModel } from "@/utils/model";
+import {
+  isNetworkingModel,
+  supportsOfficialOpenAIResponses,
+  supportsOpenAIResponsesWebSearch,
+} from "@/utils/model";
 import { ThinkTagStreamProcessor, removeJsonMarkdown } from "@/utils/text";
 import { parseError } from "@/utils/error";
 import { pick, flat, unique } from "radash";
+import { OPENAI_BASE_URL } from "@/constants/urls";
+import { completePath } from "@/utils/url";
+import { derivePaperDocument, generatePaperArtifacts } from "@/utils/paper";
 
 type ProviderOptions = Record<string, Record<string, JSONValue>>;
 type Tools = Record<string, Tool>;
@@ -131,7 +138,14 @@ function useDeepResearch() {
   }
 
   async function generateSearchSettings(searchModel: string) {
-    const { provider, enableSearch, searchProvider, searchMaxResult } =
+    const {
+      provider,
+      mode,
+      enableSearch,
+      searchProvider,
+      searchMaxResult,
+      openAIApiProxy,
+    } =
       useSettingStore.getState();
 
     if (enableSearch === "1" && searchProvider === "model") {
@@ -148,12 +162,12 @@ function useDeepResearch() {
       };
       const getTools = (model: string) => {
         // Enable OpenAI's built-in search tool
-        if (
-          ["openai", "azure", "openaicompatible"].includes(provider) &&
-          (model.startsWith("gpt-4o") ||
-            model.startsWith("gpt-4.1") ||
-            model.startsWith("gpt-5"))
-        ) {
+        const openAIBaseURL =
+          mode === "local"
+            ? completePath(openAIApiProxy || OPENAI_BASE_URL, "/v1")
+            : location.origin + "/api/ai/openai/v1";
+
+        if (supportsOpenAIResponsesWebSearch(provider, model, openAIBaseURL)) {
           return {
             web_search_preview: openai.tools.webSearchPreview({
               // optional configuration:
@@ -613,23 +627,30 @@ function useDeepResearch() {
       useFileFormatResource,
       reportStyle,
       reportLength,
+      provider,
+      mode,
+      openAIApiProxy,
     } = useSettingStore.getState();
     const {
       reportPlan,
       tasks,
       setId,
-      setTitle,
-      setSources,
       requirement,
       updateFinalReport,
+      updatePaperDocument,
     } = useTaskStore.getState();
     const { save } = useHistoryStore.getState();
     const { thinkingModel } = getModel();
     const promptOverrides = getPromptOverrides();
     setStatus(t("research.common.writing"));
     updateFinalReport("");
-    setTitle("");
-    setSources([]);
+    updatePaperDocument({
+      ...useTaskStore.getState().paperDocument,
+      title: "",
+      references: [],
+      sections: [],
+      artifacts: [],
+    });
     const learnings = tasks.map((item) => item.learning);
     const sources: Source[] = unique(
       flat(tasks.map((item) => item.sources || [])),
@@ -641,7 +662,13 @@ function useDeepResearch() {
     );
     const enableCitationImage = images.length > 0 && citationImage === "enable";
     const enableReferences = sources.length > 0 && references === "enable";
-    const enableFileFormatResource = useFileFormatResource === "enable";
+    const openAIBaseURL =
+      mode === "local"
+        ? completePath(openAIApiProxy || OPENAI_BASE_URL, "/v1")
+        : location.origin + "/api/ai/openai/v1";
+    const enableFileFormatResource =
+      useFileFormatResource === "enable" &&
+      supportsOfficialOpenAIResponses(provider, thinkingModel, openAIBaseURL);
     const mergedRequirement = [
       requirement,
       getReportPreferenceRequirement(reportStyle, reportLength),
@@ -762,9 +789,23 @@ function useDeepResearch() {
         .replaceAll("#", "")
         .replaceAll("*", "")
         .trim();
-      setTitle(title);
-      setSources(sources);
-      const id = save(taskStore.backup());
+      const paperDocument = derivePaperDocument({
+        title,
+        markdown: content,
+        sources,
+      });
+      const artifacts = generatePaperArtifacts({
+        title,
+        tasks,
+        paperDocument,
+      });
+
+      updatePaperDocument({
+        ...paperDocument,
+        artifacts,
+      });
+
+      const id = save(useTaskStore.getState().backup());
       setId(id);
       return content;
     } else {

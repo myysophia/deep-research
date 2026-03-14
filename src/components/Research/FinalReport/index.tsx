@@ -10,6 +10,8 @@ import {
   NotebookText,
   Waypoints,
   FileSpreadsheet,
+  Settings2,
+  Sparkles,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,12 +42,20 @@ import { useKnowledgeStore } from "@/store/knowledge";
 import { useSettingStore } from "@/store/setting";
 import { parseDeepResearchPromptOverrides } from "@/constants/prompts";
 import { getSystemPrompt } from "@/utils/deep-research/prompts";
-import { downloadFile } from "@/utils/file";
-import { markdownToDoc } from "@/utils/markdown";
+import { downloadBlob, downloadFile } from "@/utils/file";
+import {
+  derivePaperDocument,
+  generatePaperArtifacts,
+  preparePaperDocumentForExport,
+  serializePaperDocumentToMarkdown,
+} from "@/utils/paper";
 
 const MagicDown = dynamic(() => import("@/components/MagicDown"));
 const Artifact = dynamic(() => import("@/components/Artifact"));
 const KnowledgeGraph = dynamic(() => import("./KnowledgeGraph"));
+const PaperPreview = dynamic(() => import("./PaperPreview"));
+const PaperLayoutDialog = dynamic(() => import("./PaperLayoutDialog"));
+const PaperTemplateDialog = dynamic(() => import("./PaperTemplateDialog"));
 
 const formSchema = z.object({
   requirement: z.string().optional(),
@@ -63,7 +73,10 @@ function FinalReport() {
     stop: accurateTimerStop,
   } = useAccurateTimer();
   const [isWriting, setIsWriting] = useState<boolean>(false);
+  const [isExportingDocx, setIsExportingDocx] = useState<boolean>(false);
   const [openKnowledgeGraph, setOpenKnowledgeGraph] = useState<boolean>(false);
+  const [openLayoutDialog, setOpenLayoutDialog] = useState<boolean>(false);
+  const [openTemplateDialog, setOpenTemplateDialog] = useState<boolean>(false);
   const promptOverrides = useMemo(() => {
     try {
       return parseDeepResearchPromptOverrides(deepResearchPromptOverrides);
@@ -102,10 +115,22 @@ function FinalReport() {
   }
 
   function getFinakReportContent() {
-    const { finalReport, resources, sources } = useTaskStore.getState();
+    const { finalReport, resources, sources, paperDocument, title } =
+      useTaskStore.getState();
+    const normalizedPaperDocument =
+      paperDocument.sections.length > 0
+        ? paperDocument
+        : derivePaperDocument({
+            title,
+            markdown: finalReport,
+            sources,
+            artifacts: paperDocument.artifacts,
+            layoutConfig: paperDocument.layoutConfig,
+            templateMeta: paperDocument.templateMeta,
+          });
 
     return [
-      finalReport,
+      serializePaperDocumentToMarkdown(normalizedPaperDocument),
       resources.length > 0
         ? [
             "---",
@@ -114,20 +139,6 @@ function FinalReport() {
             })}`,
             `${resources
               .map((source, idx) => `${idx + 1}. ${source.name}`)
-              .join("\n")}`,
-          ].join("\n")
-        : "",
-      sources.length > 0
-        ? [
-            "---",
-            `## ${t("research.finalReport.researchedInfor", {
-              total: sources.length,
-            })}`,
-            `${sources
-              .map(
-                (source, idx) =>
-                  `${idx + 1}. [${source.title || source.url}][${idx + 1}]`
-              )
               .join("\n")}`,
           ].join("\n")
         : "",
@@ -157,14 +168,102 @@ function FinalReport() {
     );
   }
 
-  function handleDownloadWord() {
-    // markdownToDoc returns HTML that Word can read as a legacy .doc file
-    const docHtml = markdownToDoc(getFinakReportContent());
-    downloadFile(
-      docHtml,
-      `${taskStore.title}.doc`,
-      "application/msword;charset=utf-8"
+  async function renderMermaidArtifacts(artifacts: PaperArtifact[]) {
+    const mermaid = (await import("mermaid")).default;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+      securityLevel: "loose",
+    });
+
+    return await Promise.all(
+      artifacts.map(async (artifact) => {
+        if (artifact.type !== "mermaid") return artifact;
+        try {
+          const result = await mermaid.render(
+            `paper-export-${artifact.id}-${Date.now()}`,
+            artifact.content
+          );
+          return {
+            ...artifact,
+            renderedSvg: result.svg,
+          };
+        } catch {
+          return artifact;
+        }
+      })
     );
+  }
+
+  async function handleDownloadWord() {
+    try {
+      setIsExportingDocx(true);
+      const paperDocument =
+        taskStore.paperDocument.sections.length > 0
+          ? taskStore.paperDocument
+          : derivePaperDocument({
+              title: taskStore.title,
+              markdown: taskStore.finalReport,
+              sources: taskStore.sources,
+              artifacts: taskStore.paperDocument.artifacts,
+              layoutConfig: taskStore.paperDocument.layoutConfig,
+              templateMeta: taskStore.paperDocument.templateMeta,
+            });
+      const { paperDocument: exportPaperDocument, warnings } =
+        preparePaperDocumentForExport(paperDocument, taskStore.sources);
+      const validationErrors: string[] = [];
+      const { templateMeta } = exportPaperDocument;
+
+      if (!exportPaperDocument.title.trim()) validationErrors.push("论文题目未填写");
+      if (!templateMeta.college.trim()) validationErrors.push("学院未填写");
+      if (!templateMeta.major.trim()) validationErrors.push("专业未填写");
+      if (!templateMeta.className.trim()) validationErrors.push("班级未填写");
+      if (!templateMeta.studentName.trim()) validationErrors.push("学生姓名未填写");
+      if (!templateMeta.studentId.trim()) validationErrors.push("学号未填写");
+      if (!templateMeta.advisor.trim()) validationErrors.push("指导教师未填写");
+      if (!exportPaperDocument.abstractZh.trim()) validationErrors.push("中文摘要未完成");
+      if (!exportPaperDocument.abstractEn.trim()) validationErrors.push("英文摘要未完成");
+
+      if (validationErrors.length > 0) {
+        throw new Error(
+          `论文模板信息不完整：${validationErrors.slice(0, 6).join("、")}`
+        );
+      }
+      if (warnings.length > 0) {
+        toast.warning(warnings.join("；"));
+      }
+
+      const artifacts = await renderMermaidArtifacts(exportPaperDocument.artifacts);
+      const response = await fetch("/api/export/docx", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          paperDocument: {
+            ...exportPaperDocument,
+            artifacts,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error?.message || "DOCX 导出失败");
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      downloadBlob(
+        arrayBuffer,
+        `${taskStore.title || "论文"}.docx`,
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      );
+      toast.success("DOCX 导出成功");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "DOCX 导出失败");
+    } finally {
+      setIsExportingDocx(false);
+    }
   }
 
   async function handleDownloadPDF() {
@@ -178,6 +277,48 @@ function FinalReport() {
     form.setValue("requirement", taskStore.requirement);
   }, [taskStore.requirement, form]);
 
+  useEffect(() => {
+    if (taskStore.finalReport && taskStore.paperDocument.sections.length === 0) {
+      taskStore.updatePaperDocument(
+        derivePaperDocument({
+          title: taskStore.title,
+          markdown: taskStore.finalReport,
+          sources: taskStore.sources,
+          artifacts: taskStore.paperDocument.artifacts,
+          layoutConfig: taskStore.paperDocument.layoutConfig,
+        })
+      );
+    }
+  }, [
+    taskStore,
+    taskStore.finalReport,
+    taskStore.paperDocument.artifacts,
+    taskStore.paperDocument.layoutConfig,
+    taskStore.paperDocument.sections.length,
+    taskStore.sources,
+    taskStore.title,
+  ]);
+
+  function handleRegenerateArtifacts() {
+    const paperDocument =
+      taskStore.paperDocument.sections.length > 0
+        ? taskStore.paperDocument
+        : derivePaperDocument({
+            title: taskStore.title,
+            markdown: taskStore.finalReport,
+            sources: taskStore.sources,
+            layoutConfig: taskStore.paperDocument.layoutConfig,
+          });
+    taskStore.setPaperArtifacts(
+      generatePaperArtifacts({
+        title: paperDocument.title,
+        tasks: taskStore.tasks,
+        paperDocument,
+      })
+    );
+    toast.success("图表已重新生成");
+  }
+
   return (
     <>
       <section className="p-4 border rounded-md mt-4 print:border-none">
@@ -190,6 +331,9 @@ function FinalReport() {
               className="min-h-72"
               value={taskStore.finalReport}
               onChange={(value) => taskStore.updateFinalReport(value)}
+              renderView={() => (
+                <PaperPreview paperDocument={taskStore.paperDocument} />
+              )}
               tools={
                 <>
                   <div className="px-1">
@@ -230,6 +374,42 @@ function FinalReport() {
                   >
                     <NotebookText />
                   </Button>
+                  <Button
+                    className="float-menu-button"
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    title="模板信息"
+                    side="left"
+                    sideoffset={8}
+                    onClick={() => setOpenTemplateDialog(true)}
+                  >
+                    <FileText />
+                  </Button>
+                  <Button
+                    className="float-menu-button"
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    title="一键排版"
+                    side="left"
+                    sideoffset={8}
+                    onClick={() => setOpenLayoutDialog(true)}
+                  >
+                    <Settings2 />
+                  </Button>
+                  <Button
+                    className="float-menu-button"
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    title="生成图表"
+                    side="left"
+                    sideoffset={8}
+                    onClick={() => handleRegenerateArtifacts()}
+                  >
+                    <Sparkles />
+                  </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -257,7 +437,9 @@ function FinalReport() {
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleDownloadWord()}>
                         <FileSpreadsheet />
-                        <span>Word</span>
+                        <span>
+                          {isExportingDocx ? "导出 DOCX 中..." : "DOCX"}
+                        </span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="max-md:hidden"
@@ -364,6 +546,18 @@ function FinalReport() {
           <div>{t("research.finalReport.emptyTip")}</div>
         ) : null}
       </section>
+      <PaperLayoutDialog
+        open={openLayoutDialog}
+        onOpenChange={setOpenLayoutDialog}
+        layoutConfig={taskStore.paperDocument.layoutConfig}
+        onSave={(layoutConfig) => taskStore.updatePaperLayoutConfig(layoutConfig)}
+      />
+      <PaperTemplateDialog
+        open={openTemplateDialog}
+        onOpenChange={setOpenTemplateDialog}
+        templateMeta={taskStore.paperDocument.templateMeta}
+        onSave={(templateMeta) => taskStore.updatePaperTemplateMeta(templateMeta)}
+      />
       {openKnowledgeGraph ? (
         <KnowledgeGraph
           open={openKnowledgeGraph}

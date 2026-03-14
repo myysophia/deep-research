@@ -28,6 +28,7 @@ import { useTaskStore, type TaskStore } from "@/store/task";
 import { useHistoryStore, type ResearchHistory } from "@/store/history";
 import { downloadFile } from "@/utils/file";
 import { fileParser } from "@/utils/parser";
+import { derivePaperDocument } from "@/utils/paper";
 
 interface HistoryProps {
   open: boolean;
@@ -72,6 +73,7 @@ const taskStoreSchema = z.object({
   title: z.string(),
   finalReport: z.string(),
   sources: z.array(sourceSchema).optional(),
+  paperDocument: z.any().optional(),
   version: z.string().optional(),
 });
 
@@ -95,7 +97,17 @@ function History({ open, onClose }: HistoryProps) {
     const data = JSON.parse(text) as z.infer<typeof taskStoreSchema>;
     const verifyFileformat = taskStoreSchema.safeParse(data);
     if (verifyFileformat.success) {
-      save(data as TaskStore);
+      const normalizedData = {
+        ...data,
+        paperDocument:
+          data.paperDocument ||
+          derivePaperDocument({
+            title: data.title,
+            markdown: data.finalReport,
+            sources: data.sources || [],
+          }),
+      } as TaskStore;
+      save(normalizedData);
       toast.message(t("history.importSuccess", { title: file.name }));
     } else {
       console.error(verifyFileformat.error);

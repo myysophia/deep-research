@@ -20,6 +20,7 @@ type Props = {
   fixedTopOffset?: number;
   fixedRightOffset?: number;
   tools?: ReactNode;
+  renderView?: (value: string) => ReactNode;
 };
 
 function MagicDown({
@@ -30,6 +31,7 @@ function MagicDown({
   fixedTopOffset,
   fixedRightOffset,
   tools,
+  renderView,
 }: Props) {
   const { t } = useTranslation();
   const isMobile = useMobile(450);
@@ -48,9 +50,13 @@ function MagicDown({
   return (
     <div className={cn("relative", className)} ref={containerRef}>
       {mode === "view" ? (
-        <div className="magicdown-view prose prose-slate dark:prose-invert max-w-full">
-          <View>{value}</View>
-        </div>
+        renderView ? (
+          <>{renderView(value)}</>
+        ) : (
+          <div className="magicdown-view prose prose-slate dark:prose-invert max-w-full">
+            <View>{value}</View>
+          </div>
+        )
       ) : (
         <div className="magicdown-editor my-2">
           <Editor defaultValue={value} onChange={onChange}></Editor>

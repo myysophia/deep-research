@@ -15,12 +15,15 @@ import {
   POLLINATIONS_BASE_URL,
 } from "@/constants/urls";
 import { multiApiKeyPolling } from "@/utils/model";
-import { generateSignature } from "@/utils/signature";
+import { getProxyAuthToken } from "@/libs/supabase/client-auth";
 import { completePath } from "@/utils/url";
+
+const SAAS_MVP_ENABLED = process.env.NEXT_PUBLIC_SAAS_MVP_ENABLED === "1";
 
 function useModelProvider() {
   async function createModelProvider(model: string, settings?: any) {
-    const { mode, provider, accessPassword } = useSettingStore.getState();
+    const { mode, provider } = useSettingStore.getState();
+    const proxyToken = mode === "proxy" ? await getProxyAuthToken() : "";
     const options: AIProviderOptions = {
       baseURL: "",
       provider,
@@ -191,7 +194,7 @@ function useModelProvider() {
         } else {
           options.baseURL = location.origin + "/api/ai/ollama/api";
           options.headers = {
-            Authorization: generateSignature(accessPassword, Date.now()),
+            Authorization: `Bearer ${proxyToken}`,
           };
         }
         break;
@@ -200,7 +203,7 @@ function useModelProvider() {
     }
 
     if (mode === "proxy") {
-      options.apiKey = generateSignature(accessPassword, Date.now());
+      options.apiKey = proxyToken;
     }
 
     return await createAIProvider(options);
@@ -298,7 +301,7 @@ function useModelProvider() {
   }
 
   function hasApiKey(): boolean {
-    const { provider } = useSettingStore.getState();
+    const { provider, mode } = useSettingStore.getState();
 
     switch (provider) {
       case "google":
@@ -309,6 +312,7 @@ function useModelProvider() {
           useSettingStore.getState();
         return googleVertexProject !== "" && googleVertexLocation !== "";
       case "openai":
+        if (SAAS_MVP_ENABLED && mode === "proxy") return true;
         const { openAIApiKey } = useSettingStore.getState();
         return openAIApiKey.length > 0;
       case "anthropic":

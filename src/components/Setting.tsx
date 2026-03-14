@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -84,6 +85,7 @@ import {
 import { researchStore } from "@/utils/storage";
 import { cn } from "@/utils/style";
 import { omit, capitalize } from "radash";
+import { applySaaSClientDefaults, saasClientEnabled } from "@/libs/saas/client-defaults";
 
 type SettingProps = {
   open: boolean;
@@ -96,6 +98,8 @@ const DISABLED_AI_PROVIDER = process.env.NEXT_PUBLIC_DISABLED_AI_PROVIDER || "";
 const DISABLED_SEARCH_PROVIDER =
   process.env.NEXT_PUBLIC_DISABLED_SEARCH_PROVIDER || "";
 const MODEL_LIST = process.env.NEXT_PUBLIC_MODEL_LIST || "";
+const SAAS_FIXED_PROVIDER = "openaicompatible";
+const SAAS_FIXED_MODEL = "qwen3.5-plus";
 
 const formSchema = z.object({
   provider: z.string(),
@@ -237,6 +241,7 @@ function Setting({ open, onClose }: SettingProps) {
   const { modelList, refresh } = useModel();
   const pwaInstall = usePWAInstall();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const saasDefaultsAppliedRef = useRef(false);
 
   const thinkingModelList = useMemo(() => {
     const { provider } = useSettingStore.getState();
@@ -292,6 +297,13 @@ function Setting({ open, onClose }: SettingProps) {
 
   const isDisabledAIModel = useCallback(
     (model: string) => {
+      if (
+        saasClientEnabled &&
+        provider === SAAS_FIXED_PROVIDER &&
+        model === SAAS_FIXED_MODEL
+      ) {
+        return false;
+      }
       if (mode === "local") return false;
       const { availableModelList, disabledModelList } = getCustomModelList(
         MODEL_LIST.length > 0 ? MODEL_LIST.split(",") : [],
@@ -303,7 +315,7 @@ function Setting({ open, onClose }: SettingProps) {
       if (disabledModelList.includes("all")) return true;
       return disabledModelList.some((disabledModel) => disabledModel === model);
     },
-    [mode],
+    [mode, provider],
   );
 
   const isDisabledSearchProvider = useCallback(
@@ -390,13 +402,32 @@ function Setting({ open, onClose }: SettingProps) {
   }, [open, fetchModelList]);
 
   useLayoutEffect(() => {
-    if (open && mode === "") {
+    if (!open) {
+      saasDefaultsAppliedRef.current = false;
+      return;
+    }
+    if (saasClientEnabled) {
+      if (saasDefaultsAppliedRef.current) return;
+      saasDefaultsAppliedRef.current = true;
+      applySaaSClientDefaults(true);
+      form.setValue("mode", "proxy");
+      form.setValue("provider", "openaicompatible");
+      form.setValue(
+        "openAICompatibleApiProxy",
+        "https://dashscope.aliyuncs.com/compatible-mode",
+      );
+      form.setValue("openAICompatibleThinkingModel", "qwen3.5-plus");
+      form.setValue("openAICompatibleNetworkingModel", "qwen3.5-plus");
+      void refresh("openaicompatible");
+      return;
+    }
+    if (mode === "") {
       const { apiKey, accessPassword, update } = useSettingStore.getState();
       const requestMode = !apiKey && accessPassword ? "proxy" : "local";
       update({ mode: requestMode });
       form.setValue("mode", requestMode);
     }
-  }, [open, mode, form]);
+  }, [open, mode, form, refresh]);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -423,7 +454,7 @@ function Setting({ open, onClose }: SettingProps) {
                 </TabsTrigger>
               </TabsList>
               <TabsContent className="space-y-4  min-h-[250px]" value="llm">
-                <div className={BUILD_MODE === "export" ? "hidden" : ""}>
+                <div className={BUILD_MODE === "export" || saasClientEnabled ? "hidden" : ""}>
                   <FormField
                     control={form.control}
                     name="mode"
@@ -459,6 +490,7 @@ function Setting({ open, onClose }: SettingProps) {
                     )}
                   />
                 </div>
+                <div className={saasClientEnabled ? "hidden" : ""}>
                 <FormField
                   control={form.control}
                   name="provider"
@@ -537,6 +569,7 @@ function Setting({ open, onClose }: SettingProps) {
                     </FormItem>
                   )}
                 />
+                </div>
                 <div className={mode === "proxy" ? "hidden" : ""}>
                   <div
                     className={cn("space-y-4", {
@@ -1257,7 +1290,7 @@ function Setting({ open, onClose }: SettingProps) {
                 </div>
                 <div
                   className={cn("space-y-4", {
-                    hidden: mode === "local" || BUILD_MODE === "export",
+                    hidden: saasClientEnabled || mode === "local" || BUILD_MODE === "export",
                   })}
                 >
                   <FormField
@@ -2575,7 +2608,7 @@ function Setting({ open, onClose }: SettingProps) {
                               })}
                             >
                               <Select
-                                defaultValue={field.value}
+                                value={field.value}
                                 onValueChange={field.onChange}
                               >
                                 <SelectTrigger>
@@ -2640,7 +2673,7 @@ function Setting({ open, onClose }: SettingProps) {
                               })}
                             >
                               <Select
-                                defaultValue={field.value}
+                                value={field.value}
                                 onValueChange={field.onChange}
                               >
                                 <SelectTrigger>
@@ -2885,7 +2918,7 @@ function Setting({ open, onClose }: SettingProps) {
                               })}
                             >
                               <Select
-                                defaultValue={field.value}
+                                value={field.value}
                                 onValueChange={field.onChange}
                               >
                                 <SelectTrigger>
@@ -2950,7 +2983,7 @@ function Setting({ open, onClose }: SettingProps) {
                               })}
                             >
                               <Select
-                                defaultValue={field.value}
+                                value={field.value}
                                 onValueChange={field.onChange}
                               >
                                 <SelectTrigger>
@@ -3725,20 +3758,7 @@ function Setting({ open, onClose }: SettingProps) {
                 ) : null}
                 <div className="from-item">
                   <Label className="from-label">{t("setting.version")}</Label>
-                  <div className="form-field text-center leading-9">
-                    {`v${VERSION}`}
-                    <small className="ml-1">
-                      (
-                      <a
-                        className="hover:underline hover:underline-offset-4 hover:text-blue-500"
-                        href="https://github.com/u14app/deep-research"
-                        target="_blank"
-                      >
-                        {t("setting.checkForUpdate")}
-                      </a>
-                      )
-                    </small>
-                  </div>
+                  <div className="form-field text-center leading-9">{`v${VERSION}`}</div>
                 </div>
                 <div className="from-item">
                   <Label className="from-label">

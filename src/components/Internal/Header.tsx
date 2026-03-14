@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Settings, Github, History, BookText, Keyboard } from "lucide-react";
+import { Settings, History, BookText, Keyboard } from "lucide-react";
 import { Button } from "@/components/Internal/Button";
 import {
   Dialog,
@@ -16,8 +16,10 @@ import { useTaskStore, type TaskStore } from "@/store/task";
 import { useHistoryStore } from "@/store/history";
 import { downloadFile } from "@/utils/file";
 import { fileParser } from "@/utils/parser";
+import { derivePaperDocument } from "@/utils/paper";
 
 const VERSION = process.env.NEXT_PUBLIC_VERSION;
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME;
 
 const resourceSchema = z.object({
   id: z.string(),
@@ -64,6 +66,7 @@ const taskSnapshotSchema = z.object({
   sources: z.array(sourceSchema).optional(),
   images: z.array(imageSourceSchema).optional(),
   knowledgeGraph: z.string().optional(),
+  paperDocument: z.any().optional(),
 });
 
 function normalizeTaskSnapshot(
@@ -89,6 +92,13 @@ function normalizeTaskSnapshot(
     sources: snapshot.sources ?? [],
     images: snapshot.images ?? [],
     knowledgeGraph: snapshot.knowledgeGraph ?? "",
+    paperDocument:
+      snapshot.paperDocument ??
+      derivePaperDocument({
+        title: snapshot.title ?? "",
+        markdown: snapshot.finalReport ?? "",
+        sources: snapshot.sources ?? [],
+      }),
   };
 }
 
@@ -114,6 +124,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 function Header() {
   const { t } = useTranslation();
+  const appName = APP_NAME || t("title");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [openShortcuts, setOpenShortcuts] = useState<boolean>(false);
   const { setOpenSetting, setOpenHistory, setOpenKnowledge } = useGlobalStore();
@@ -250,23 +261,11 @@ function Header() {
   return (
     <>
       <header className="flex justify-between items-center my-6 max-sm:my-4 print:hidden">
-        <a href="https://github.com/u14app/deep-research" target="_blank">
-          <h1 className="text-left text-xl font-semibold">
-            {t("title")}
-            <small className="ml-2 font-normal text-base">v{VERSION}</small>
-          </h1>
-        </a>
+        <h1 className="text-left text-xl font-semibold">
+          {appName}
+          <small className="ml-2 font-normal text-base">v{VERSION}</small>
+        </h1>
         <div className="flex">
-          <a href="https://github.com/u14app/deep-research" target="_blank">
-            <Button
-              className="h-8 w-8"
-              title={t("openSource")}
-              variant="ghost"
-              size="icon"
-            >
-              <Github className="h-5 w-5" />
-            </Button>
-          </a>
           <Button
             className="h-8 w-8"
             variant="ghost"
