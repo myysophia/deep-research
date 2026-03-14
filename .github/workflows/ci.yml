@@ -11,7 +11,7 @@ on:
 
 env:
   ACR_REGISTRY: crpi-ywue2o6mpn8qaq0l.cn-hangzhou.personal.cr.aliyuncs.com
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: tangshu
 
 jobs:
   # ============================================
