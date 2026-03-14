@@ -22,7 +22,14 @@ COPY . .
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Add Supabase environment variables for build
+ENV NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder-anon-key
+ENV SUPABASE_URL=https://placeholder.supabase.co
+ENV SUPABASE_ANON_KEY=placeholder-anon-key
+ENV SUPABASE_SERVICE_ROLE_KEY=placeholder-service-role-key
 
 RUN pnpm run build
 
