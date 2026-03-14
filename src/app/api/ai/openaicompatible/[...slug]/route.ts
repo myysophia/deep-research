@@ -12,7 +12,9 @@ export const preferredRegion = [
   "kix1",
 ];
 
-const API_PROXY_BASE_URL = process.env.OPENAI_COMPATIBLE_API_BASE_URL || "";
+const API_PROXY_BASE_URL =
+  process.env.OPENAI_COMPATIBLE_API_BASE_URL ||
+  "https://dashscope.aliyuncs.com/compatible-mode";
 
 async function handler(req: NextRequest) {
   let body;

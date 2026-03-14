@@ -17,7 +17,8 @@ const MISTRAL_API_BASE_URL =
   process.env.MISTRAL_API_BASE_URL || "https://api.mistral.ai";
 const AZURE_API_BASE_URL = `https://${process.env.AZURE_RESOURCE_NAME}.openai.azure.com/openai/deployments`;
 const OPENAI_COMPATIBLE_API_BASE_URL =
-  process.env.OPENAI_COMPATIBLE_API_BASE_URL || "";
+  process.env.OPENAI_COMPATIBLE_API_BASE_URL ||
+  "https://dashscope.aliyuncs.com/compatible-mode";
 const POLLINATIONS_API_BASE_URL =
   process.env.POLLINATIONS_API_BASE_URL ||
   "https://text.pollinations.ai/openai";

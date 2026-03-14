@@ -8,11 +8,15 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const HEAD_SCRIPTS = process.env.HEAD_SCRIPTS as string;
-const APP_NAME = "Deep Research";
-const APP_DEFAULT_TITLE = "Deep Research";
-const APP_TITLE_TEMPLATE = "%s - PWA App";
-const APP_DESCRIPTION =
-  "Use any LLMs (Large Language Models) for Deep Research.";
+
+// OEM Branding Configuration from Environment Variables
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "AI论文撰写智能体";
+const APP_DEFAULT_TITLE = process.env.NEXT_PUBLIC_APP_TITLE || APP_NAME;
+const APP_TITLE_TEMPLATE = `%s - ${APP_NAME}`;
+const APP_DESCRIPTION = process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
+  "AI-powered academic thesis writing assistant with deep research capabilities";
+const APP_LOGO = process.env.NEXT_PUBLIC_APP_LOGO || "logo.svg";
+const APP_THEME_COLOR = process.env.NEXT_PUBLIC_APP_THEME_COLOR || "#FFFFFF";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
@@ -23,7 +27,7 @@ export const metadata: Metadata = {
   icons: {
     icon: {
       type: "image/svg+xml",
-      url: "./logo.svg",
+      url: `./${APP_LOGO}`,
     },
   },
   description: APP_DESCRIPTION,
@@ -62,7 +66,7 @@ export const viewport: Viewport = {
   maximumScale: 1.0,
   viewportFit: "cover",
   userScalable: false,
-  themeColor: "#FFFFFF",
+  themeColor: APP_THEME_COLOR,
 };
 
 export default function RootLayout({

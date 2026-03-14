@@ -30,11 +30,35 @@ const DISABLED_AI_PROVIDER = process.env.NEXT_PUBLIC_DISABLED_AI_PROVIDER || "";
 const DISABLED_SEARCH_PROVIDER =
   process.env.NEXT_PUBLIC_DISABLED_SEARCH_PROVIDER || "";
 const MODEL_LIST = process.env.NEXT_PUBLIC_MODEL_LIST || "";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
+const supabaseServerKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "";
+const SAAS_MVP_DEV_MODE = process.env.SAAS_MVP_DEV_MODE === "1";
 
 // Limit the middleware to paths starting with `/api/`
 export const config = {
   matcher: "/api/:path*",
 };
+
+
+async function hasSupabaseSession(token: string) {
+  if (!token || !supabaseUrl || !supabaseServerKey) return false;
+
+  try {
+    const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      method: "GET",
+      headers: {
+        apikey: supabaseServerKey,
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+    return response.ok;
+  } catch (error) {
+    console.error("Failed to verify Supabase session in middleware", error);
+    if (SAAS_MVP_DEV_MODE) return true;
+    return false;
+  }
+}
 
 const ERRORS = {
   NO_PERMISSIONS: {
@@ -169,13 +193,16 @@ export async function middleware(request: NextRequest) {
   }
   if (request.nextUrl.pathname.startsWith("/api/ai/openaicompatible")) {
     const authorization = request.headers.get("authorization") || "";
+    const bearerToken = authorization.startsWith("Bearer ")
+      ? authorization.substring(7)
+      : "";
     const isDisabledModel = await hasDisabledAIModel();
+    const hasLegacyAccess =
+      accessPassword !== "" &&
+      verifySignature(bearerToken, accessPassword, Date.now());
+    const hasSessionAccess = await hasSupabaseSession(bearerToken);
     if (
-      !verifySignature(
-        authorization.substring(7),
-        accessPassword,
-        Date.now()
-      ) ||
+      (!hasLegacyAccess && !hasSessionAccess) ||
       disabledAIProviders.includes("openaicompatible") ||
       isDisabledModel
     ) {
@@ -209,13 +236,16 @@ export async function middleware(request: NextRequest) {
   }
   if (request.nextUrl.pathname.startsWith("/api/ai/openai")) {
     const authorization = request.headers.get("authorization") || "";
+    const bearerToken = authorization.startsWith("Bearer ")
+      ? authorization.substring(7)
+      : "";
     const isDisabledModel = await hasDisabledAIModel();
+    const hasLegacyAccess =
+      accessPassword !== "" &&
+      verifySignature(bearerToken, accessPassword, Date.now());
+    const hasSessionAccess = await hasSupabaseSession(bearerToken);
     if (
-      !verifySignature(
-        authorization.substring(7),
-        accessPassword,
-        Date.now()
-      ) ||
+      (!hasLegacyAccess && !hasSessionAccess) ||
       disabledAIProviders.includes("openai") ||
       isDisabledModel
     ) {
@@ -491,13 +521,17 @@ export async function middleware(request: NextRequest) {
   // The pollinations model only verifies access to the backend API
   if (request.nextUrl.pathname.startsWith("/api/ai/pollinations")) {
     const authorization = request.headers.get("authorization") || "";
+    const bearerToken = authorization.startsWith("Bearer ")
+      ? authorization.substring(7)
+      : "";
     const isDisabledModel = await hasDisabledAIModel();
+    const hasLegacyAccess =
+      accessPassword !== "" &&
+      verifySignature(bearerToken, accessPassword, Date.now());
+    const hasSessionAccess = await hasSupabaseSession(bearerToken);
+
     if (
-      !verifySignature(
-        authorization.substring(7),
-        accessPassword,
-        Date.now()
-      ) ||
+      (!hasLegacyAccess && !hasSessionAccess) ||
       disabledAIProviders.includes("pollinations") ||
       isDisabledModel
     ) {
@@ -511,6 +545,7 @@ export async function middleware(request: NextRequest) {
         "Content-Type",
         request.headers.get("Content-Type") || "application/json"
       );
+      requestHeaders.delete("Authorization");
       return NextResponse.next({
         request: {
           headers: requestHeaders,
