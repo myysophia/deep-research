@@ -425,6 +425,210 @@
     "promptOverrides": "Prompt Overrides",
     "promptOverridesTip": "Use a JSON object to override built-in deep research prompts. Only the provided keys are overridden.",
     "promptOverridesPlaceholder": "{\n  \"systemInstruction\": \"You are an expert researcher...\",\n  \"reportPlanPrompt\": \"Given the following query...\"\n}",
-    "promptOverridesInvalid": "Prompt overrides must be a valid JSON object."
+    "promptOverridesInvalid": "Prompt overrides must be a valid JSON object.",
+    "thesis": {
+      "title": "Thesis Settings",
+      "citationStyle": "Citation Style",
+      "citationStyleTip": "Select the citation format standard for your thesis.",
+      "citationStyleValue": {
+        "apa": "APA (7th Edition)",
+        "mla": "MLA (9th Edition)",
+        "chicago": "Chicago (17th Edition)",
+        "ieee": "IEEE",
+        "gb7714": "GB/T 7714-2015",
+        "bibtex": "BibTeX"
+      },
+      "thesisTemplate": "Thesis Template",
+      "thesisTemplateTip": "Select the thesis structure template.",
+      "thesisTemplateValue": {
+        "standard": "Standard Academic Paper",
+        "empirical": "Empirical Research Paper",
+        "review": "Literature Review",
+        "case": "Case Study",
+        "custom": "Custom Structure"
+      },
+      "autoCitations": "Auto Generate Citations",
+      "autoCitationsTip": "Automatically add citation markers to report content.",
+      "exportBibTeX": "Export BibTeX",
+      "exportBibTeXTip": "Export citation library in BibTeX format."
+    }
+  },
+  "thesis": {
+    "title": "Thesis Assistant",
+    "templates": {
+      "title": "Thesis Templates",
+      "standard": {
+        "name": "Standard Academic Paper",
+        "description": "Includes abstract, introduction, literature review, methodology, results, discussion, conclusion, and references",
+        "structure": [
+          "Abstract",
+          "Keywords",
+          "Introduction",
+          "Literature Review",
+          "Methodology",
+          "Results",
+          "Discussion",
+          "Conclusion",
+          "References",
+          "Appendices"
+        ]
+      },
+      "empirical": {
+        "name": "Empirical Research Paper",
+        "description": "Focuses on data analysis and hypothesis testing",
+        "structure": [
+          "Abstract",
+          "Introduction",
+          "Theoretical Framework",
+          "Hypotheses",
+          "Methods",
+          "Data Analysis",
+          "Results",
+          "Discussion",
+          "Limitations and Suggestions",
+          "References"
+        ]
+      },
+      "review": {
+        "name": "Literature Review",
+        "description": "Systematic review and analysis of relevant literature",
+        "structure": [
+          "Abstract",
+          "Introduction",
+          "Literature Search Strategy",
+          "Thematic Analysis",
+          "Key Findings",
+          "Research Gaps",
+          "Future Directions",
+          "Conclusion",
+          "References"
+        ]
+      },
+      "case": {
+        "name": "Case Study",
+        "description": "In-depth analysis of a specific case or phenomenon",
+        "structure": [
+          "Abstract",
+          "Introduction",
+          "Case Background",
+          "Problem Statement",
+          "Analytical Framework",
+          "Case Analysis",
+          "Discussion",
+          "Implications and Recommendations",
+          "Conclusion",
+          "References"
+        ]
+      }
+    },
+    "citation": {
+      "title": "Citation Management",
+      "addCitation": "Add Citation",
+      "importBibTeX": "Import BibTeX",
+      "exportBibTeX": "Export BibTeX",
+      "syncZotero": "Sync Zotero",
+      "citationLibrary": "Citation Library",
+      "noCitations": "No citations yet",
+      "citationCount": "{{count}} citations",
+      "formatPreview": "Format Preview"
+    }
+  },
+  "auth": {
+    "gate": {
+      "checking": "Checking sign-in status..."
+    },
+    "actions": {
+      "backHome": "Back home",
+      "backLogin": "Back to login",
+      "createAccount": "Create account",
+      "haveAccount": "Have an account",
+      "forgotPassword": "Forgot password",
+      "login": "Log in",
+      "loggingIn": "Logging in...",
+      "creating": "Creating...",
+      "sendReset": "Send reset link",
+      "sending": "Sending...",
+      "updatePassword": "Update password",
+      "updating": "Updating..."
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password"
+    },
+    "placeholders": {
+      "password": "Enter your password",
+      "newPassword": "At least 6 characters",
+      "confirmPassword": "Enter it again"
+    },
+    "validation": {
+      "email": "Please enter a valid email address",
+      "passwordMin": "Password must be at least 6 characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "acceptTerms": "Please accept the terms and privacy notice",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "feedback": {
+      "invalidCredentials": "Incorrect email or password",
+      "loginSuccess": "Logged in successfully",
+      "registerSuccess": "Account created successfully",
+      "registerFailed": "Registration failed, please try again later",
+      "resetEmailFailed": "Failed to send reset email, please try again later",
+      "resetEmailSent": "If the email exists, we sent a reset link",
+      "resetEmailSentHint": "If the email exists, we sent a reset link. Please check your inbox or try again later.",
+      "resetFailed": "Password reset failed, please request a new link",
+      "resetSuccess": "Password updated, please sign in again",
+      "invalidLink": "This reset link has expired. Please go back and request a new one."
+    },
+    "layout": {
+      "brand": "AI Thesis Writing Agent",
+      "heroTitle": "Academic writing starts with a traceable sign-in entry.",
+      "heroDescription": "Keep your research context, citation trail, and writing progress in one place. For now, only the email flow is enabled so the account system and workspace stay stable.",
+      "noSso": "Only email auth is enabled for now. Third-party SSO remains disabled.",
+      "trackTitle": "Writing readiness track",
+      "trackDescription": "Finish account access first, then unlock billing, subscription, and quota modules step by step.",
+      "rail": {
+        "topic": "Topic",
+        "search": "Research",
+        "argument": "Argument",
+        "draft": "Draft"
+      },
+      "highlights": {
+        "workspace": {
+          "title": "Research workspace",
+          "description": "Resume your topics and history after sign-in, with one place for your research context."
+        },
+        "evidence": {
+          "title": "Evidence trail",
+          "description": "Track literature, images, webpages, and local files with a reviewable citation path."
+        },
+        "output": {
+          "title": "Paper output",
+          "description": "Turn research steps into structured reports and move steadily toward a final draft."
+        }
+      }
+    },
+    "login": {
+      "badge": "Email sign in",
+      "title": "Sign in to your research workspace",
+      "description": "Use your email account to continue the thesis, billing, and quota flow."
+    },
+    "register": {
+      "badge": "Email sign up",
+      "title": "Create your research account",
+      "description": "Connect the account layer first, then add billing, subscription, and quota modules.",
+      "acceptTerms": "I have read and accept the terms of service and privacy notice."
+    },
+    "forgot": {
+      "badge": "Password recovery",
+      "title": "Reset your sign-in password",
+      "description": "Enter your email and we will send a password reset link to your inbox."
+    },
+    "reset": {
+      "badge": "Reset password",
+      "title": "Set a new password",
+      "description": "After opening the email link, set a new password for your account here."
+    }
   }
 }
