@@ -1,7 +1,7 @@
 {
-  "name": "Deep Research",
-  "short_name": "Deep Research",
-  "id": "u14 deep research",
+  "name": "AI论文撰写智能体",
+  "short_name": "AI Thesis Writer",
+  "id": "ai-thesis-writer",
   "scope": ".",
   "icons": [
     {
