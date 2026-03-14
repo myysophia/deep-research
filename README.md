@@ -1,10 +1,8 @@
 <div align="center">
-<h1>Deep Research</h1>
+<h1>AI论文撰写智能体</h1>
+<p>AI Thesis Writer</p>
 
-![GitHub deployments](https://img.shields.io/github/deployments/u14app/gemini-next-chat/Production)
-![GitHub Release](https://img.shields.io/github/v/release/u14app/deep-research)
-![Docker Image Size](https://img.shields.io/docker/image-size/xiangfa/deep-research/latest)
-![Docker Pulls](https://img.shields.io/docker/pulls/xiangfa/deep-research)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-default.svg)](https://opensource.org/licenses/MIT)
 
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
@@ -12,39 +10,70 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![shadcn/ui](https://img.shields.io/badge/shadcn/ui-111111?style=flat&logo=shadcnui&logoColor=white)](https://ui.shadcn.com/)
 
-[![Vercel](https://img.shields.io/badge/Vercel-111111?style=flat&logo=vercel&logoColor=white)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fu14app%2Fdeep-research&project-name=deep-research&repository-name=deep-research)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-F69652?style=flat&logo=cloudflare&logoColor=white)](./docs/How-to-deploy-to-Cloudflare-Pages.md)
-[![PWA](https://img.shields.io/badge/PWA-blue?style=flat&logo=pwa&logoColor=white)](https://research.u14.app/)
-
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/u14app/deep-research)
+[![Vercel](https://img.shields.io/badge/Vercel-111111?style=flat&logo=vercel&logoColor=white)](https://vercel.com/new)
+[![PWA](https://img.shields.io/badge/PWA-blue?style=flat&logo=pwa&logoColor=white)](https://)
 
 </div>
 
-**Lightning-Fast Deep Research Report**
+**AI-Powered Academic Thesis Writing Assistant**
 
-Deep Research uses a variety of powerful AI models to generate in-depth research reports in just a few minutes. It leverages advanced "Thinking" and "Task" models, combined with an internet connection, to provide fast and insightful analysis on a variety of topics. **Your privacy is paramount - all data is processed and stored locally.**
+AI论文撰写智能体 is an advanced AI-powered tool specifically designed for academic thesis writing. It combines cutting-edge AI models with deep research capabilities to help students, researchers, and academics write high-quality theses and research papers efficiently. **Your privacy is paramount - all data is processed and stored locally.**
+
+---
 
 ## ✨ Features
 
-- **Rapid Deep Research:** Generates comprehensive research reports in about 2 minutes, significantly accelerating your research process.
-- **Multi-platform Support:** Supports rapid deployment to Vercel, Cloudflare and other platforms.
-- **Powered by AI:** Utilizes the advanced AI models for accurate and insightful analysis.
-- **Privacy-Focused:** Your data remains private and secure, as all data is stored locally on your browser.
-- **Support for Multi-LLM:** Supports a variety of mainstream large language models, including Gemini, OpenAI, Anthropic, Deepseek, Grok, Mistral, Azure OpenAI, any OpenAI Compatible LLMs, OpenRouter, Ollama, etc.
-- **Support Web Search:** Supports search engines such as Searxng, Tavily, Firecrawl, Exa, Bocha, Brave, etc., allowing LLMs that do not support search to use the web search function more conveniently.
-- **Thinking & Task Models:** Employs sophisticated "Thinking" and "Task" models to balance depth and speed, ensuring high-quality results quickly. Support switching research models.
-- **Support Further Research:** You can refine or adjust the research content at any stage of the project and support re-research from that stage.
-- **Local Knowledge Base:** Supports uploading and processing text, Office, PDF and other resource files to generate local knowledge base.
-- **Artifact:** Supports editing of research content, with two editing modes: WYSIWYM and Markdown. It is possible to adjust the reading level, article length and full text translation.
-- **Knowledge Graph:** It supports one-click generation of knowledge graph, allowing you to have a systematic understanding of the report content.
-- **Research History:** Support preservation of research history, you can review previous research results at any time and conduct in-depth research again.
-- **Local & Server API Support:** Offers flexibility with both local and server-side API calling options to suit your needs.
-- **Support for SaaS and MCP:** You can use this project as a deep research service (SaaS) through the SSE API, or use it in other AI services through MCP service.
-- **Support PWA:** With Progressive Web App (PWA) technology, you can use the project like a software.
-- **Support Multi-Key payload:** Support Multi-Key payload to improve API response efficiency.
-- **Multi-language Support**: English, 简体中文, Español.
-- **Built with Modern Technologies:** Developed using Next.js 15 and Shadcn UI, ensuring a modern, performant, and visually appealing user experience.
-- **MIT Licensed:** Open-source and freely available for personal and commercial use under the MIT License.
+### 🎓 Academic Writing Features
+
+- **📚 Thesis Templates**: Pre-built templates for different types of academic papers:
+  - Standard Academic Paper (标准学术论文)
+  - Empirical Research Paper (实证研究论文)
+  - Literature Review (文献综述)
+  - Case Study (案例分析)
+- **📝 Citation Management**: Support for multiple citation formats:
+  - APA (7th Edition)
+  - MLA (9th Edition)
+  - Chicago (17th Edition)
+  - IEEE
+  - GB/T 7714-2015 (中国国家标准)
+  - BibTeX
+- **🔄 BibTeX Import/Export**: Seamlessly manage your citation library
+- **🔗 Zotero Integration**: Sync with your Zotero library (optional)
+- **📊 Knowledge Graph**: Visualize relationships between concepts in your research
+
+### 🤖 AI-Powered Research
+
+- **🧠 Deep Research**: Generates comprehensive research reports in about 2 minutes
+- **🔍 Multi-Source Search**: Supports Tavily, Firecrawl, Exa, Bocha, Brave, and more
+- **💡 Thinking & Task Models**: Uses advanced reasoning models (o1, DeepSeek-R1, Gemini-2.5-Pro)
+- **📚 Local Knowledge Base**: Upload PDF/Office files to build your research library
+- **✍️ Smart Editing**: Adjust reading level, article length, and translate content
+
+### 🌐 Platform & Deployment
+
+- **☁️ Multi-Platform**: Deploy to Vercel, Cloudflare, or self-host
+- **🔒 Privacy-First**: All data processed and stored locally
+- **📱 PWA Support**: Use as a native app on any device
+- **🌍 Multi-Language**: English, 简体中文, Español
+
+### 🔧 OEM / Branding Support
+
+- **🎨 Full Customization**: White-label ready with environment variables
+- **🏷️ Custom Branding**: Application name, logo, colors, and more
+- **📤 Easy Deployment**: One-click deployment with custom branding
+
+---
+
+## 🎯 Roadmap
+
+- [x] Academic thesis templates
+- [x] Citation management (APA, MLA, Chicago, IEEE, GB7714)
+- [x] BibTeX import/export
+- [x] Zotero integration interface
+- [x] OEM/Branding configuration
+- [ ] Direct LaTeX export
+- [ ] Grammar and style checking
+- [ ] Plagiarism detection integration
 
 ## 🎯 Roadmap
 
@@ -115,13 +144,74 @@ Follow these steps to get Deep Research up and running on your local browser.
    pnpm dev  # or npm run dev or yarn dev
    ```
 
-   Open your browser and visit [http://localhost:3000](http://localhost:3000) to access Deep Research.
+   Open your browser and visit [http://localhost:3000](http://localhost:3000) to access AI论文撰写智能体.
+
+### SaaS Environment Layering (dev/staging/prod)
+
+For SaaS MVP deployments, use separated Supabase environments with dedicated templates:
+
+- `.env.saas.dev.example`
+- `.env.saas.staging.example`
+- `.env.saas.prod.example`
+
+Detailed conventions (variables, secret boundaries, CI/CD mapping) are documented in:
+
+- [docs/plans/2026-03-09-supabase-env-layering.md](./docs/plans/2026-03-09-supabase-env-layering.md)
 
 ### Custom Model List
 
 The project allow custom model list, but **only works in proxy mode**. Please add an environment variable named `NEXT_PUBLIC_MODEL_LIST` in the `.env` file or environment variables page.
 
 Custom model lists use `,` to separate multiple models. If you want to disable a model, use the `-` symbol followed by the model name, i.e. `-existing-model-name`. To only allow the specified model to be available, use `-all,+new-model-name`.
+
+## 🎨 OEM / Branding Configuration
+
+AI论文撰写智能体 supports full white-label customization through environment variables. This makes it easy to deploy as a custom-branded thesis writing platform for universities, research institutions, or enterprises.
+
+### Available OEM Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_APP_NAME` | Application name | "AI论文撰写智能体" |
+| `NEXT_PUBLIC_APP_TITLE` | Browser tab title | (uses APP_NAME) |
+| `NEXT_PUBLIC_APP_DESCRIPTION` | SEO description | "AI-powered academic thesis writing assistant..." |
+| `NEXT_PUBLIC_APP_LOGO` | Logo file path | "logo.svg" |
+| `NEXT_PUBLIC_APP_THEME_COLOR` | PWA theme color | "#FFFFFF" |
+| `NEXT_PUBLIC_APP_BACKGROUND_COLOR` | PWA background color | "#FFFFFF" |
+| `NEXT_PUBLIC_APP_ID` | PWA application ID | "ai-thesis-writer" |
+| `NEXT_PUBLIC_APP_FOOTER` | Footer copyright text | (auto-generated) |
+| `NEXT_PUBLIC_APP_REPO_URL` | Repository link for footer | "" |
+| `NEXT_PUBLIC_APP_DOCS_URL` | Documentation link for footer | "" |
+
+### Example Configuration
+
+```bash
+# .env or Vercel Environment Variables
+NEXT_PUBLIC_APP_NAME=My University Thesis Writer
+NEXT_PUBLIC_APP_TITLE=ThesisWriter
+NEXT_PUBLIC_APP_DESCRIPTION=AI-powered thesis writing platform for My University students
+NEXT_PUBLIC_APP_LOGO=university-logo.svg
+NEXT_PUBLIC_APP_THEME_COLOR=#003366
+NEXT_PUBLIC_APP_FOOTER=© 2025 My University. All rights reserved.
+NEXT_PUBLIC_APP_REPO_URL=https://github.com/myuniversity/thesis-writer
+```
+
+### Custom Branding for Deployment
+
+For Vercel deployment:
+1. Fork this repository
+2. Add OEM environment variables in your Vercel project settings
+3. Deploy!
+
+For Docker deployment:
+```bash
+docker run -d --name thesis-writer \
+   -p 3333:3000 \
+   -e NEXT_PUBLIC_APP_NAME="My Thesis Writer" \
+   -e NEXT_PUBLIC_APP_THEME_COLOR="#003366" \
+   -e GOOGLE_GENERATIVE_AI_API_KEY=AIzaSy... \
+   ai-thesis-writer
+```
 
 ## 🚢 Deployment
 

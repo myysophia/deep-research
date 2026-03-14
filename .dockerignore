@@ -1,6 +1,44 @@
-.dockerignore
+# Dependencies
 node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env
+.env*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Git
+.git/
+.github/
+
+# Documentation
 README.md
-.next
-.git
-out
+docs/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.vercel/
+.netlify/
+
+# Misc
+*.log
+*.tmp
+.cache/

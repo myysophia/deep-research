@@ -60,6 +60,7 @@ AZURE_RESOURCE_NAME=
 # (Optional) Server-side Compatible with OpenAI API Key (Required for server API calls)
 OPENAI_COMPATIBLE_API_KEY=
 # (Optional) Server-side Compatible with OpenAI API Proxy URL.
+# DashScope 示例: `https://dashscope.aliyuncs.com/compatible-mode`
 OPENAI_COMPATIBLE_API_BASE_URL=
 
 # (Optional) Server-side pollinations.ai API Proxy URL. Default, `https://text.pollinations.ai/openai`
@@ -118,3 +119,87 @@ NEXT_PUBLIC_MODEL_LIST=
 
 # (Optional) Injected script code can be used for statistics or error tracking.
 HEAD_SCRIPTS=
+
+# ============================================
+# SaaS MVP Configuration
+# ============================================
+
+# (Optional) Runtime environment selector for SaaS deployment
+# Possible values: `dev`, `staging`, `prod`
+APP_RUNTIME_ENV=dev
+
+# (Optional) Enable SaaS MVP APIs (`/api/billing/*`, `/api/account/delete-request`)
+# Possible values: `1` or `0`
+SAAS_MVP_ENABLED=0
+
+# (Optional) Enable development auth fallback (use `x-user-id` if Bearer token exists)
+# Possible values: `1` or `0`
+SAAS_MVP_DEV_MODE=0
+
+# (Optional) Supabase URL (project environment specific)
+SUPABASE_URL=
+
+# (Optional) Supabase anonymous key (client safe)
+SUPABASE_ANON_KEY=
+
+# (Optional) Supabase service role key (server only)
+SUPABASE_SERVICE_ROLE_KEY=
+
+# (Optional) Supabase project reference (for ops/audit)
+SUPABASE_PROJECT_REF=
+
+# (Optional) Supabase Postgres connection string (server only)
+SUPABASE_DB_URL=
+
+# (Optional) Payment provider key, default `aggregator`
+PAYMENT_PROVIDER=aggregator
+
+# (Optional) Webhook signature secret for payment callback
+PAYMENT_WEBHOOK_SECRET=
+
+# (Optional) Comma-separated admin user id allowlist
+ADMIN_USER_WHITELIST=
+
+# ============================================
+# OEM / Branding Configuration
+# ============================================
+
+# (Optional) Application name displayed in UI and browser tab
+# Default: "AI论文撰写智能体"
+NEXT_PUBLIC_APP_NAME=
+
+# (Optional) Application title for SEO and browser display
+# Default: Uses NEXT_PUBLIC_APP_NAME
+NEXT_PUBLIC_APP_TITLE=
+
+# (Optional) Application description for SEO and metadata
+# Default: "AI-powered academic thesis writing assistant"
+NEXT_PUBLIC_APP_DESCRIPTION=
+
+# (Optional) Application logo path (relative to public folder)
+# Default: "logo.svg"
+NEXT_PUBLIC_APP_LOGO=
+
+# (Optional) Theme color for PWA and browser UI
+# Default: "#FFFFFF"
+NEXT_PUBLIC_APP_THEME_COLOR=
+
+# (Optional) Background color for PWA splash screen
+# Default: "#FFFFFF"
+NEXT_PUBLIC_APP_BACKGROUND_COLOR=
+
+# (Optional) Application ID for PWA manifest
+# Default: "ai-thesis-writer"
+NEXT_PUBLIC_APP_ID=
+
+# (Optional) Footer copyright text
+# Default: "© 2025 AI Thesis Writer. All rights reserved."
+NEXT_PUBLIC_APP_FOOTER=
+
+# (Optional) Repository URL for footer link
+# Default: ""
+NEXT_PUBLIC_APP_REPO_URL=
+
+# (Optional) Documentation URL for help link
+# Default: ""
+NEXT_PUBLIC_APP_DOCS_URL=

@@ -23,7 +23,8 @@ const MISTRAL_API_BASE_URL =
 const AZURE_API_BASE_URL = `https://${process.env.AZURE_RESOURCE_NAME}.openai.azure.com/openai/deployments`;
 const GOOGLE_VERTEX_API_BASE_URL = `https://${process.env.GOOGLE_VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${process.env.GOOGLE_VERTEX_PROJECT}/locations/${process.env.GOOGLE_VERTEX_LOCATION}/publishers/google`;
 const OPENAI_COMPATIBLE_API_BASE_URL =
-  process.env.OPENAI_COMPATIBLE_API_BASE_URL || "";
+  process.env.OPENAI_COMPATIBLE_API_BASE_URL ||
+  "https://dashscope.aliyuncs.com/compatible-mode";
 const POLLINATIONS_API_BASE_URL =
   process.env.POLLINATIONS_API_BASE_URL ||
   "https://text.pollinations.ai/openai";
@@ -43,6 +44,20 @@ const SEARXNG_API_BASE_URL =
   process.env.SEARXNG_API_BASE_URL || "http://0.0.0.0:8080";
 
 export default async function Config(phase: string) {
+  // OEM Branding Configuration with Defaults
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "AI论文撰写智能体";
+  const appTitle = process.env.NEXT_PUBLIC_APP_TITLE || appName;
+  const appDescription = process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
+    "AI-powered academic thesis writing assistant with deep research capabilities";
+  const appLogo = process.env.NEXT_PUBLIC_APP_LOGO || "logo.svg";
+  const appThemeColor = process.env.NEXT_PUBLIC_APP_THEME_COLOR || "#FFFFFF";
+  const appBackgroundColor = process.env.NEXT_PUBLIC_APP_BACKGROUND_COLOR || "#FFFFFF";
+  const appId = process.env.NEXT_PUBLIC_APP_ID || "ai-thesis-writer";
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL || "";
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY || "";
+
   const nextConfig: NextConfig = {
     /* config options here */
     experimental: {
@@ -50,6 +65,21 @@ export default async function Config(phase: string) {
     },
     env: {
       NEXT_PUBLIC_VERSION: pkg.version,
+      // OEM Branding Environment Variables
+      NEXT_PUBLIC_APP_NAME: appName,
+      NEXT_PUBLIC_APP_TITLE: appTitle,
+      NEXT_PUBLIC_APP_DESCRIPTION: appDescription,
+      NEXT_PUBLIC_APP_LOGO: appLogo,
+      NEXT_PUBLIC_APP_THEME_COLOR: appThemeColor,
+      NEXT_PUBLIC_APP_BACKGROUND_COLOR: appBackgroundColor,
+      NEXT_PUBLIC_APP_ID: appId,
+      NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,
+      NEXT_PUBLIC_SAAS_MVP_ENABLED: process.env.SAAS_MVP_ENABLED || "0",
+      NEXT_PUBLIC_APP_FOOTER: process.env.NEXT_PUBLIC_APP_FOOTER ||
+        `© ${new Date().getFullYear()} ${appName}. All rights reserved.`,
+      NEXT_PUBLIC_APP_REPO_URL: process.env.NEXT_PUBLIC_APP_REPO_URL || "",
+      NEXT_PUBLIC_APP_DOCS_URL: process.env.NEXT_PUBLIC_APP_DOCS_URL || "",
     },
     transpilePackages: ["pdfjs-dist", "mermaid"],
   };
