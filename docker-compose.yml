@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: deep-research
+    image: crpi-ywue2o6mpn8qaq0l.cn-hangzhou.personal.cr.aliyuncs.com/tangshu/deep-research:latest
     container_name: deep-research
     env_file:
       - .env
