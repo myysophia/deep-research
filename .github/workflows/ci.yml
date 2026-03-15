@@ -112,6 +112,20 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
+      - name: Validate Supabase build configuration
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          test -n "$NEXT_PUBLIC_SUPABASE_URL" || {
+            echo "Missing secret: NEXT_PUBLIC_SUPABASE_URL";
+            exit 1;
+          }
+          test -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" || {
+            echo "Missing secret: NEXT_PUBLIC_SUPABASE_ANON_KEY";
+            exit 1;
+          }
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -133,6 +147,10 @@ jobs:
             NEXT_PUBLIC_APP_NAME=AI论文撰写智能体
             NEXT_PUBLIC_APP_DESCRIPTION=AI-powered academic thesis writing assistant
             NEXT_PUBLIC_VERSION=${{ github.ref_name }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            SUPABASE_URL=${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY || secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
   # ============================================
   # Security Scan

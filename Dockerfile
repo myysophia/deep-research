@@ -19,17 +19,21 @@ RUN npm install -g pnpm@10.31.0
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG SUPABASE_URL
+ARG SUPABASE_ANON_KEY
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Add Supabase environment variables for build
-ENV NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder-anon-key
-ENV SUPABASE_URL=https://placeholder.supabase.co
-ENV SUPABASE_ANON_KEY=placeholder-anon-key
-ENV SUPABASE_SERVICE_ROLE_KEY=placeholder-service-role-key
+# Build-time Supabase public variables must come from docker build args.
+ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+ENV SUPABASE_URL=${SUPABASE_URL}
+ENV SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
 
 # Set build mode to standalone for Docker deployment
 ENV NEXT_PUBLIC_BUILD_MODE=standalone

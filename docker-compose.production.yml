@@ -14,6 +14,10 @@ services:
         NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-AI论文撰写智能体}
         NEXT_PUBLIC_APP_DESCRIPTION: ${NEXT_PUBLIC_APP_DESCRIPTION:-AI-powered academic thesis writing assistant}
         NEXT_PUBLIC_VERSION: ${NEXT_PUBLIC_VERSION:-1.0.0}
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://jaotyxuadwoiwzrrzdma.supabase.co}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        SUPABASE_URL: ${SUPABASE_URL:-https://jaotyxuadwoiwzrrzdma.supabase.co}
+        SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
     image: crpi-ywue2o6mpn8qaq0l.cn-hangzhou.personal.cr.aliyuncs.com/tangshu/deep-research:latest
     container_name: ai-thesis-writer
     restart: unless-stopped
