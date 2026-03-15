@@ -24,6 +24,13 @@ services:
       - NODE_ENV=production
       - PORT=3000
 
+      # Supabase Configuration (required for auth)
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-https://jaotyxuadwoiwzrrzdma.supabase.co}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_URL=${SUPABASE_URL:-https://jaotyxuadwoiwzrrzdma.supabase.co}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+
       # OEM Branding
       - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-AI论文撰写智能体}
       - NEXT_PUBLIC_APP_TITLE=${NEXT_PUBLIC_APP_TITLE}
