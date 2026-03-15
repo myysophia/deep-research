@@ -1,3 +1,6 @@
+# DISABLED: Only using ACR (ci.yml)
+# Re-enable this workflow if you want to push to GitHub Container Registry
+
 name: Create and publish a Docker image
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
@@ -16,6 +19,7 @@ env:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    if: false  # DISABLED
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read

@@ -1,3 +1,6 @@
+# DISABLED: Only using ACR (ci.yml)
+# Re-enable this workflow if you want to push to Docker Hub
+
 name: Publish Docker image
 
 on:
@@ -10,6 +13,7 @@ jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    if: false  # DISABLED
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3

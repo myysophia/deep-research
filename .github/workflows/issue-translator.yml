@@ -1,3 +1,6 @@
+# DISABLED: Issue translation bot
+# Re-enable this workflow if you want automatic issue translation
+
 name: Issue Translator
 on:
   issue_comment:
@@ -8,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: false  # DISABLED
     steps:
       - uses: usthe/issues-translate-action@v2.7
         with:

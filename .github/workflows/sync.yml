@@ -1,3 +1,6 @@
+# DISABLED: Upstream sync from u14app/deep-research
+# Re-enable this workflow if this is a fork and you want to sync with upstream
+
 name: Upstream Sync
 
 permissions:
@@ -12,7 +15,7 @@ jobs:
   sync_latest_from_upstream:
     name: Sync latest commits from upstream repo
     runs-on: ubuntu-latest
-    if: ${{ github.event.repository.fork }}
+    if: false  # DISABLED - This is the original repo, not a fork
 
     steps:
       # Step 1: run a standard checkout action
