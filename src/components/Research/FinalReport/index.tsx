@@ -353,6 +353,7 @@ function FinalReport() {
             ...exportPaperDocument,
             artifacts,
           },
+          templateProfile: selectedTemplateProfile,
         }),
       });
 

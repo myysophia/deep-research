@@ -4,6 +4,8 @@ import { jsonError } from "@/libs/saas/response";
 import { buildTemplateThesisDocxBuffer } from "@/utils/thesis-template";
 import { parseError } from "@/utils/error";
 import { createDefaultThesisTemplateMeta } from "@/utils/paper";
+import { templateProfileSchema } from "@/utils/template-profile/schema";
+import { applyTemplateProfileToPaperDocument } from "@/utils/thesis-export/assemble";
 
 export const runtime = "nodejs";
 
@@ -86,6 +88,7 @@ const paperDocumentSchema = z.object({
 
 const requestSchema = z.object({
   paperDocument: paperDocumentSchema,
+  templateProfile: templateProfileSchema.optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -97,11 +100,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const exportPaperDocument = applyTemplateProfileToPaperDocument(
+      {
+        ...parsed.data.paperDocument,
+        templateMeta:
+          parsed.data.paperDocument.templateMeta ||
+          createDefaultThesisTemplateMeta(),
+      },
+      parsed.data.templateProfile
+    );
     const buffer = await buildTemplateThesisDocxBuffer({
-      ...parsed.data.paperDocument,
-      templateMeta:
-        parsed.data.paperDocument.templateMeta ||
-        createDefaultThesisTemplateMeta(),
+      ...exportPaperDocument,
     });
     return new NextResponse(buffer, {
       status: 200,
