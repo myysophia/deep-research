@@ -238,6 +238,8 @@ interface TemplateConfirmationItem {
   description: string;
   confidence: number;
   resolved: boolean;
+  resolution?: "confirmed" | "ignored";
+  targetKey?: string;
   suggestedValue?: string;
 }
 

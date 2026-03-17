@@ -8,6 +8,7 @@ type FormatCheckPanelProps = {
   profile?: TemplateProfile;
   validation: TemplateValidationResult | null;
   onOpenLibrary: () => void;
+  onOpenConfirm: () => void;
   onValidate: () => void;
   validating: boolean;
 };
@@ -19,7 +20,16 @@ function getIssueIcon(level: TemplateValidationLevel) {
 }
 
 function FormatCheckPanel(props: FormatCheckPanelProps) {
-  const { profile, validation, onOpenLibrary, onValidate, validating } = props;
+  const {
+    profile,
+    validation,
+    onOpenLibrary,
+    onOpenConfirm,
+    onValidate,
+    validating,
+  } = props;
+  const pendingCount =
+    profile?.confirmationItems.filter((item) => !item.resolved).length || 0;
 
   return (
     <Card className="mt-4 print:hidden">
@@ -29,6 +39,15 @@ function FormatCheckPanel(props: FormatCheckPanelProps) {
           <div className="flex gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onOpenLibrary}>
               模板库
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onOpenConfirm}
+              disabled={!profile || pendingCount === 0}
+            >
+              {pendingCount > 0 ? `待确认 ${pendingCount}` : "无待确认项"}
             </Button>
             <Button
               type="button"
@@ -48,7 +67,7 @@ function FormatCheckPanel(props: FormatCheckPanelProps) {
             <div className="font-medium">{profile.name}</div>
             <div className="mt-1 text-xs text-muted-foreground">
               模板置信度 {Math.round(profile.confidenceScore * 100)}% · 待确认项{" "}
-              {profile.confirmationItems.filter((item) => !item.resolved).length} 条
+              {pendingCount} 条
             </div>
           </div>
         ) : (

@@ -60,6 +60,7 @@ const PaperLayoutDialog = dynamic(() => import("./PaperLayoutDialog"));
 const PaperTemplateDialog = dynamic(() => import("./PaperTemplateDialog"));
 const TemplateLibraryDialog = dynamic(() => import("./TemplateLibraryDialog"));
 const FormatCheckPanel = dynamic(() => import("./FormatCheckPanel"));
+const TemplateConfirmDialog = dynamic(() => import("./TemplateConfirmDialog"));
 
 const formSchema = z.object({
   requirement: z.string().optional(),
@@ -83,6 +84,8 @@ function FinalReport() {
   const [openTemplateDialog, setOpenTemplateDialog] = useState<boolean>(false);
   const [openTemplateLibraryDialog, setOpenTemplateLibraryDialog] =
     useState<boolean>(false);
+  const [openTemplateConfirmDialog, setOpenTemplateConfirmDialog] =
+    useState<boolean>(false);
   const [isIdentifyingTemplate, setIsIdentifyingTemplate] =
     useState<boolean>(false);
   const [isValidatingTemplate, setIsValidatingTemplate] =
@@ -96,6 +99,9 @@ function FinalReport() {
   const saveTemplateProfile = useTemplateStore((state) => state.saveProfile);
   const selectTemplate = useTemplateStore((state) => state.selectTemplate);
   const setTemplateValidation = useTemplateStore((state) => state.setValidation);
+  const resolveConfirmationItem = useTemplateStore(
+    (state) => state.resolveConfirmationItem
+  );
   const promptOverrides = useMemo(() => {
     try {
       return parseDeepResearchPromptOverrides(deepResearchPromptOverrides);
@@ -196,6 +202,18 @@ function FinalReport() {
     if (!profile) return;
     await runTemplateValidation(profile);
     setOpenTemplateLibraryDialog(false);
+  }
+
+  async function handleResolveConfirmation(
+    itemId: string,
+    resolution: "confirmed" | "ignored"
+  ) {
+    if (!selectedTemplateId) return;
+    resolveConfirmationItem(selectedTemplateId, itemId, resolution);
+    const nextProfile = useTemplateStore.getState().profiles[selectedTemplateId];
+    if (nextProfile) {
+      await runTemplateValidation(nextProfile);
+    }
   }
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
@@ -680,6 +698,7 @@ function FinalReport() {
           profile={selectedTemplateProfile}
           validation={latestTemplateValidation}
           onOpenLibrary={() => setOpenTemplateLibraryDialog(true)}
+          onOpenConfirm={() => setOpenTemplateConfirmDialog(true)}
           onValidate={() => {
             void runTemplateValidation();
           }}
@@ -709,6 +728,14 @@ function FinalReport() {
         }}
         onUpload={(file, documentKind) => {
           void handleUploadTemplate(file, documentKind);
+        }}
+      />
+      <TemplateConfirmDialog
+        open={openTemplateConfirmDialog}
+        onOpenChange={setOpenTemplateConfirmDialog}
+        profile={selectedTemplateProfile}
+        onResolve={(itemId, resolution) => {
+          void handleResolveConfirmation(itemId, resolution);
         }}
       />
       {openKnowledgeGraph ? (

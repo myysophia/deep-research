@@ -83,6 +83,8 @@ export const templateConfirmationItemSchema = z.object({
   description: z.string(),
   confidence: z.number().min(0).max(1),
   resolved: z.boolean(),
+  resolution: z.enum(["confirmed", "ignored"]).optional(),
+  targetKey: z.string().optional(),
   suggestedValue: z.string().optional(),
 });
 

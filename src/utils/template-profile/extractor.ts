@@ -167,6 +167,7 @@ function buildConfirmationItems(
         description: `系统对“${item.label}”区段识别置信度较低，请确认是否存在该部分。`,
         confidence: item.confidence,
         resolved: false,
+        targetKey: item.key,
         suggestedValue: item.detected ? item.label : "未识别",
       });
     });
@@ -179,6 +180,7 @@ function buildConfirmationItems(
       description: "未稳定识别到封面题目字段，请确认题目锚点位置。",
       confidence: 0.2,
       resolved: false,
+      targetKey: "title",
     });
   }
 
@@ -192,6 +194,7 @@ function buildConfirmationItems(
         description: `系统初步推断了 ${item.role}，但置信度不足，建议在模板确认中校正。`,
         confidence: item.confidence,
         resolved: false,
+        targetKey: item.role,
       });
     });
 

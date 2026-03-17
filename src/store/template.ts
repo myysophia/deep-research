@@ -17,6 +17,11 @@ interface TemplateActions {
   selectTemplate: (templateId: string) => void;
   selectFormatSpec: (formatSpecId: string) => void;
   setValidation: (result: TemplateValidationResult | null) => void;
+  resolveConfirmationItem: (
+    templateId: string,
+    itemId: string,
+    resolution: "confirmed" | "ignored"
+  ) => void;
   removeTemplate: (templateId: string) => void;
   reset: () => void;
 }
@@ -76,6 +81,113 @@ export const useTemplateStore = create(
         })),
       selectFormatSpec: (formatSpecId) => set(() => ({ selectedFormatSpecId: formatSpecId })),
       setValidation: (result) => set(() => ({ latestValidation: result })),
+      resolveConfirmationItem: (templateId, itemId, resolution) =>
+        set((state) => {
+          const currentProfile = state.profiles[templateId];
+          if (!currentProfile) return state;
+
+          const nextConfirmationItems = currentProfile.confirmationItems.map((item) =>
+            item.id === itemId
+              ? {
+                  ...item,
+                  resolved: true,
+                  resolution,
+                }
+              : item
+          );
+          const resolvedItem = nextConfirmationItems.find((item) => item.id === itemId);
+          let nextSections = currentProfile.sections;
+          let nextFieldAnchors = currentProfile.fieldAnchors;
+          let nextStyleRoles = currentProfile.styleRoles;
+
+          if (resolution === "confirmed" && resolvedItem?.targetKey) {
+            if (resolvedItem.type === "section") {
+              nextSections = currentProfile.sections.map((section) =>
+                section.key === resolvedItem.targetKey
+                  ? {
+                      ...section,
+                      detected: true,
+                      confidence: Math.max(section.confidence, 0.92),
+                    }
+                  : section
+              );
+            }
+
+            if (resolvedItem.type === "field") {
+              const hasAnchor = currentProfile.fieldAnchors.some(
+                (item) => item.key === resolvedItem.targetKey
+              );
+              if (!hasAnchor) {
+                nextFieldAnchors = [
+                  ...currentProfile.fieldAnchors,
+                  {
+                    key: resolvedItem.targetKey as TemplateFieldAnchor["key"],
+                    label: resolvedItem.label.replace("字段确认", ""),
+                    anchorText: resolvedItem.suggestedValue || resolvedItem.label,
+                    confidence: 0.7,
+                  },
+                ];
+              }
+            }
+
+            if (resolvedItem.type === "style") {
+              const styleRole = resolvedItem.targetKey as TemplateRole;
+              const hasRole = currentProfile.styleRoles.some(
+                (item) => item.role === styleRole
+              );
+              nextStyleRoles = hasRole
+                ? currentProfile.styleRoles.map((item) =>
+                    item.role === styleRole
+                      ? { ...item, confidence: Math.max(item.confidence, 0.85) }
+                      : item
+                  )
+                : [
+                    ...currentProfile.styleRoles,
+                    {
+                      role: styleRole,
+                      confidence: 0.75,
+                    },
+                  ];
+            }
+          }
+
+          const unresolvedCount = nextConfirmationItems.filter(
+            (item) => !item.resolved
+          ).length;
+          const confidenceBoost = resolution === "confirmed" ? 0.03 : 0.01;
+          const nextProfile: TemplateProfile = {
+            ...currentProfile,
+            sections: nextSections,
+            fieldAnchors: nextFieldAnchors,
+            styleRoles: nextStyleRoles,
+            confirmationItems: nextConfirmationItems,
+            confidenceScore: Number(
+              Math.min(
+                0.99,
+                currentProfile.confidenceScore +
+                  confidenceBoost -
+                  Math.max(unresolvedCount - 1, 0) * 0.005
+              ).toFixed(2)
+            ),
+            updatedAt: Date.now(),
+          };
+
+          return {
+            profiles: {
+              ...state.profiles,
+              [templateId]: nextProfile,
+            },
+            library: state.library.map((item) =>
+              item.id === templateId
+                ? {
+                    ...item,
+                    confidenceScore: nextProfile.confidenceScore,
+                    updatedAt: nextProfile.updatedAt,
+                  }
+                : item
+            ),
+          };
+        }),
       removeTemplate: (templateId) =>
         set((state) => {
           const nextProfiles = { ...state.profiles };
