@@ -1,10 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Download,
   FileText,
+  FolderOpen,
   Signature,
   LoaderCircle,
   NotebookText,
@@ -40,6 +41,7 @@ import useSubmitShortcut from "@/hooks/useSubmitShortcut";
 import { useTaskStore } from "@/store/task";
 import { useKnowledgeStore } from "@/store/knowledge";
 import { useSettingStore } from "@/store/setting";
+import { useTemplateStore } from "@/store/template";
 import { parseDeepResearchPromptOverrides } from "@/constants/prompts";
 import { getSystemPrompt } from "@/utils/deep-research/prompts";
 import { downloadBlob, downloadFile } from "@/utils/file";
@@ -56,6 +58,8 @@ const KnowledgeGraph = dynamic(() => import("./KnowledgeGraph"));
 const PaperPreview = dynamic(() => import("./PaperPreview"));
 const PaperLayoutDialog = dynamic(() => import("./PaperLayoutDialog"));
 const PaperTemplateDialog = dynamic(() => import("./PaperTemplateDialog"));
+const TemplateLibraryDialog = dynamic(() => import("./TemplateLibraryDialog"));
+const FormatCheckPanel = dynamic(() => import("./FormatCheckPanel"));
 
 const formSchema = z.object({
   requirement: z.string().optional(),
@@ -77,6 +81,21 @@ function FinalReport() {
   const [openKnowledgeGraph, setOpenKnowledgeGraph] = useState<boolean>(false);
   const [openLayoutDialog, setOpenLayoutDialog] = useState<boolean>(false);
   const [openTemplateDialog, setOpenTemplateDialog] = useState<boolean>(false);
+  const [openTemplateLibraryDialog, setOpenTemplateLibraryDialog] =
+    useState<boolean>(false);
+  const [isIdentifyingTemplate, setIsIdentifyingTemplate] =
+    useState<boolean>(false);
+  const [isValidatingTemplate, setIsValidatingTemplate] =
+    useState<boolean>(false);
+  const templateLibrary = useTemplateStore((state) => state.library);
+  const templateProfiles = useTemplateStore((state) => state.profiles);
+  const selectedTemplateId = useTemplateStore((state) => state.selectedTemplateId);
+  const latestTemplateValidation = useTemplateStore(
+    (state) => state.latestValidation
+  );
+  const saveTemplateProfile = useTemplateStore((state) => state.saveProfile);
+  const selectTemplate = useTemplateStore((state) => state.selectTemplate);
+  const setTemplateValidation = useTemplateStore((state) => state.setValidation);
   const promptOverrides = useMemo(() => {
     try {
       return parseDeepResearchPromptOverrides(deepResearchPromptOverrides);
@@ -100,6 +119,84 @@ function FinalReport() {
   const handleFinalReportSubmitShortcut = useSubmitShortcut(() => {
     void form.handleSubmit(handleSubmit)();
   });
+  const selectedTemplateProfile = useMemo(() => {
+    if (!selectedTemplateId) return undefined;
+    return templateProfiles[selectedTemplateId];
+  }, [selectedTemplateId, templateProfiles]);
+
+  const runTemplateValidation = useCallback(
+    async (profile = selectedTemplateProfile) => {
+      if (!profile) return;
+
+      try {
+        setIsValidatingTemplate(true);
+        const response = await fetch("/api/template/validate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            profile,
+          }),
+        });
+        const payload = await response.json().catch(() => null);
+
+        if (!response.ok || !payload?.ok) {
+          throw new Error(payload?.error?.message || "模板体检失败");
+        }
+
+        setTemplateValidation(payload.data);
+        return payload.data as TemplateValidationResult;
+      } finally {
+        setIsValidatingTemplate(false);
+      }
+    },
+    [selectedTemplateProfile, setTemplateValidation]
+  );
+
+  async function handleUploadTemplate(
+    file: File,
+    documentKind: TemplateDocumentKind
+  ) {
+    try {
+      setIsIdentifyingTemplate(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("documentKind", documentKind);
+
+      const response = await fetch("/api/template/identify", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error?.message || "模板识别失败");
+      }
+
+      const profile = payload.data.profile as TemplateProfile;
+      saveTemplateProfile(profile);
+      await runTemplateValidation(profile);
+      toast.success(
+        `模板识别完成：${profile.name}（置信度 ${Math.round(
+          profile.confidenceScore * 100
+        )}%）`
+      );
+      setOpenTemplateLibraryDialog(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "模板识别失败");
+    } finally {
+      setIsIdentifyingTemplate(false);
+    }
+  }
+
+  async function handleSelectTemplate(templateId: string) {
+    selectTemplate(templateId);
+    const profile = templateProfiles[templateId];
+    if (!profile) return;
+    await runTemplateValidation(profile);
+    setOpenTemplateLibraryDialog(false);
+  }
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
     const { setRequirement } = useTaskStore.getState();
@@ -198,6 +295,18 @@ function FinalReport() {
   async function handleDownloadWord() {
     try {
       setIsExportingDocx(true);
+      const currentTemplateValidation =
+        selectedTemplateProfile &&
+        (latestTemplateValidation ||
+          (await runTemplateValidation(selectedTemplateProfile)));
+
+      if (
+        selectedTemplateProfile &&
+        currentTemplateValidation &&
+        !currentTemplateValidation.canExport
+      ) {
+        throw new Error("当前模板体检未通过，请先处理阻塞问题后再导出。");
+      }
       const paperDocument =
         taskStore.paperDocument.sections.length > 0
           ? taskStore.paperDocument
@@ -276,6 +385,15 @@ function FinalReport() {
   useEffect(() => {
     form.setValue("requirement", taskStore.requirement);
   }, [taskStore.requirement, form]);
+
+  useEffect(() => {
+    if (!selectedTemplateProfile) {
+      setTemplateValidation(null);
+      return;
+    }
+
+    void runTemplateValidation(selectedTemplateProfile);
+  }, [runTemplateValidation, selectedTemplateProfile, setTemplateValidation]);
 
   useEffect(() => {
     if (taskStore.finalReport && taskStore.paperDocument.sections.length === 0) {
@@ -373,6 +491,18 @@ function FinalReport() {
                     onClick={() => addToKnowledgeBase()}
                   >
                     <NotebookText />
+                  </Button>
+                  <Button
+                    className="float-menu-button"
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    title="模板库"
+                    side="left"
+                    sideoffset={8}
+                    onClick={() => setOpenTemplateLibraryDialog(true)}
+                  >
+                    <FolderOpen />
                   </Button>
                   <Button
                     className="float-menu-button"
@@ -545,6 +675,15 @@ function FinalReport() {
         {taskStore.finalReport === "" && !taskFinished ? (
           <div>{t("research.finalReport.emptyTip")}</div>
         ) : null}
+        <FormatCheckPanel
+          profile={selectedTemplateProfile}
+          validation={latestTemplateValidation}
+          onOpenLibrary={() => setOpenTemplateLibraryDialog(true)}
+          onValidate={() => {
+            void runTemplateValidation();
+          }}
+          validating={isValidatingTemplate}
+        />
       </section>
       <PaperLayoutDialog
         open={openLayoutDialog}
@@ -557,6 +696,19 @@ function FinalReport() {
         onOpenChange={setOpenTemplateDialog}
         templateMeta={taskStore.paperDocument.templateMeta}
         onSave={(templateMeta) => taskStore.updatePaperTemplateMeta(templateMeta)}
+      />
+      <TemplateLibraryDialog
+        open={openTemplateLibraryDialog}
+        onOpenChange={setOpenTemplateLibraryDialog}
+        templates={templateLibrary}
+        selectedTemplateId={selectedTemplateId}
+        isUploading={isIdentifyingTemplate}
+        onSelect={(templateId) => {
+          void handleSelectTemplate(templateId);
+        }}
+        onUpload={(file, documentKind) => {
+          void handleUploadTemplate(file, documentKind);
+        }}
       />
       {openKnowledgeGraph ? (
         <KnowledgeGraph
