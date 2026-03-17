@@ -51,6 +51,7 @@ import {
   preparePaperDocumentForExport,
   serializePaperDocumentToMarkdown,
 } from "@/utils/paper";
+import { applyTemplateProfileToPaperDocument } from "@/utils/thesis-export/assemble";
 
 const MagicDown = dynamic(() => import("@/components/MagicDown"));
 const Artifact = dynamic(() => import("@/components/Artifact"));
@@ -129,6 +130,14 @@ function FinalReport() {
     if (!selectedTemplateId) return undefined;
     return templateProfiles[selectedTemplateId];
   }, [selectedTemplateId, templateProfiles]);
+  const previewPaperDocument = useMemo(
+    () =>
+      applyTemplateProfileToPaperDocument(
+        taskStore.paperDocument,
+        selectedTemplateProfile
+      ),
+    [selectedTemplateProfile, taskStore.paperDocument]
+  );
 
   const runTemplateValidation = useCallback(
     async (profile = selectedTemplateProfile) => {
@@ -469,7 +478,7 @@ function FinalReport() {
               value={taskStore.finalReport}
               onChange={(value) => taskStore.updateFinalReport(value)}
               renderView={() => (
-                <PaperPreview paperDocument={taskStore.paperDocument} />
+                <PaperPreview paperDocument={previewPaperDocument} />
               )}
               tools={
                 <>
