@@ -15,6 +15,8 @@ type TemplateLibraryDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templates: TemplateLibraryItem[];
+  profiles: Record<string, TemplateProfile>;
+  formatSpecs: FormatSpec[];
   selectedTemplateId: string;
   isUploading: boolean;
   onSelect: (templateId: string) => void;
@@ -26,6 +28,8 @@ function TemplateLibraryDialog(props: TemplateLibraryDialogProps) {
     open,
     onOpenChange,
     templates,
+    profiles,
+    formatSpecs,
     selectedTemplateId,
     isUploading,
     onSelect,
@@ -88,6 +92,13 @@ function TemplateLibraryDialog(props: TemplateLibraryDialogProps) {
             <div className="grid gap-3">
               {templates.map((item) => {
                 const active = item.id === selectedTemplateId;
+                const profile = profiles[item.id];
+                const pendingCount =
+                  profile?.confirmationItems.filter((entry) => !entry.resolved)
+                    .length || 0;
+                const specName =
+                  formatSpecs.find((spec) => spec.id === item.formatSpecId)
+                    ?.name ?? "通用规范";
                 return (
                   <button
                     key={item.id}
@@ -100,13 +111,25 @@ function TemplateLibraryDialog(props: TemplateLibraryDialogProps) {
                     onClick={() => onSelect(item.id)}
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <div>
+                      <div className="space-y-2">
                         <div className="font-medium">{item.name}</div>
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          置信度 {Math.round(item.confidenceScore * 100)}% ·{" "}
-                          {item.source === "platform"
-                            ? "平台模板"
-                            : "用户模板"}
+                        <div className="text-xs text-muted-foreground">
+                          {specName} · {item.thesisType} · {item.educationLevel}
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-[11px]">
+                          <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
+                            {item.source === "platform" ? "平台模板" : "用户模板"}
+                          </span>
+                          <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
+                            置信度 {Math.round(item.confidenceScore * 100)}%
+                          </span>
+                          <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
+                            待确认 {pendingCount}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          最近更新{" "}
+                          {new Date(item.updatedAt).toLocaleString("zh-CN")}
                         </div>
                       </div>
                       {active ? (

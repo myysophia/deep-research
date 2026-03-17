@@ -93,6 +93,7 @@ function FinalReport() {
     useState<boolean>(false);
   const templateLibrary = useTemplateStore((state) => state.library);
   const templateProfiles = useTemplateStore((state) => state.profiles);
+  const formatSpecs = useTemplateStore((state) => state.formatSpecs);
   const selectedTemplateId = useTemplateStore((state) => state.selectedTemplateId);
   const latestTemplateValidation = useTemplateStore(
     (state) => state.latestValidation
@@ -730,6 +731,8 @@ function FinalReport() {
         open={openTemplateLibraryDialog}
         onOpenChange={setOpenTemplateLibraryDialog}
         templates={templateLibrary}
+        profiles={templateProfiles}
+        formatSpecs={formatSpecs}
         selectedTemplateId={selectedTemplateId}
         isUploading={isIdentifyingTemplate}
         onSelect={(templateId) => {
