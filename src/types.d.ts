@@ -90,6 +90,9 @@ interface TemplateDocumentStyleOverrides {
   heading3?: TemplateStyleOverride;
   referenceTitle?: TemplateStyleOverride;
   referenceItem?: TemplateStyleOverride;
+  bodyText?: TemplateStyleOverride;
+  keywordsText?: TemplateStyleOverride;
+  acknowledgementsTitle?: TemplateStyleOverride;
 }
 
 interface PaperSection {

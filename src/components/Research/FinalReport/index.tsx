@@ -63,6 +63,7 @@ const TemplateLibraryDialog = dynamic(() => import("./TemplateLibraryDialog"));
 const FormatCheckPanel = dynamic(() => import("./FormatCheckPanel"));
 const TemplateConfirmDialog = dynamic(() => import("./TemplateConfirmDialog"));
 const TemplateEditDialog = dynamic(() => import("./TemplateEditDialog"));
+const TemplatePreviewDialog = dynamic(() => import("./TemplatePreviewDialog"));
 
 const formSchema = z.object({
   requirement: z.string().optional(),
@@ -90,11 +91,18 @@ function FinalReport() {
     useState<boolean>(false);
   const [openTemplateEditDialog, setOpenTemplateEditDialog] =
     useState<boolean>(false);
+  const [openTemplatePreviewDialog, setOpenTemplatePreviewDialog] =
+    useState<boolean>(false);
   const [editingTemplateId, setEditingTemplateId] = useState<string>("");
   const [templateHistory, setTemplateHistory] = useState<
     Array<{ version: number; updatedAt: number; revisionNote?: string }>
   >([]);
   const [isSavingTemplateEdit, setIsSavingTemplateEdit] =
+    useState<boolean>(false);
+  const [templatePreviewResult, setTemplatePreviewResult] =
+    useState<TemplateValidationResult | null>(null);
+  const [templatePreviewError, setTemplatePreviewError] = useState<string>("");
+  const [isLoadingTemplatePreview, setIsLoadingTemplatePreview] =
     useState<boolean>(false);
   const [isIdentifyingTemplate, setIsIdentifyingTemplate] =
     useState<boolean>(false);
@@ -262,6 +270,49 @@ function FinalReport() {
     [selectedTemplateProfile, setTemplateValidation]
   );
 
+  const loadTemplatePreview = useCallback(
+    async (profile?: TemplateProfile) => {
+      if (!profile) {
+        setTemplatePreviewResult(null);
+        setTemplatePreviewError("请先选择模板后再执行关键页试预览。");
+        return null;
+      }
+
+      try {
+        setIsLoadingTemplatePreview(true);
+        setTemplatePreviewError("");
+        const response = await fetch("/api/template/preview", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            profile,
+            formatSpecId: profile.formatSpecId,
+          }),
+        });
+        const payload = await response.json().catch(() => null);
+
+        if (!response.ok || !payload?.ok) {
+          throw new Error(payload?.error?.message || "关键页试预览失败");
+        }
+
+        const result = payload.data as TemplateValidationResult;
+        setTemplatePreviewResult(result);
+        return result;
+      } catch (error) {
+        setTemplatePreviewResult(null);
+        setTemplatePreviewError(
+          error instanceof Error ? error.message : "关键页试预览失败"
+        );
+        return null;
+      } finally {
+        setIsLoadingTemplatePreview(false);
+      }
+    },
+    []
+  );
+
   async function handleUploadTemplate(
     file: File,
     documentKind: TemplateDocumentKind
@@ -358,6 +409,11 @@ function FinalReport() {
     } finally {
       setIsSavingTemplateEdit(false);
     }
+  }
+
+  async function handleOpenTemplatePreview() {
+    setOpenTemplatePreviewDialog(true);
+    await loadTemplatePreview(selectedTemplateProfile);
   }
 
   async function handleSubmit(values: z.infer<typeof formSchema>) {
@@ -564,6 +620,11 @@ function FinalReport() {
       toast.error(error instanceof Error ? error.message : "模板详情加载失败");
     });
   }, [fetchTemplateDetail, selectedTemplateId, selectedTemplateProfile]);
+
+  useEffect(() => {
+    setTemplatePreviewResult(null);
+    setTemplatePreviewError("");
+  }, [selectedTemplateId]);
 
   useEffect(() => {
     if (!selectedTemplateProfile) {
@@ -859,9 +920,13 @@ function FinalReport() {
           validation={latestTemplateValidation}
           onOpenLibrary={() => setOpenTemplateLibraryDialog(true)}
           onOpenConfirm={() => setOpenTemplateConfirmDialog(true)}
+          onOpenPreview={() => {
+            void handleOpenTemplatePreview();
+          }}
           onValidate={() => {
             void runTemplateValidation();
           }}
+          previewing={isLoadingTemplatePreview}
           validating={isValidatingTemplate}
         />
       </section>
@@ -912,6 +977,17 @@ function FinalReport() {
         saving={isSavingTemplateEdit}
         onSave={(fields) => {
           void handleSaveTemplateEdit(fields);
+        }}
+      />
+      <TemplatePreviewDialog
+        open={openTemplatePreviewDialog}
+        onOpenChange={setOpenTemplatePreviewDialog}
+        profile={selectedTemplateProfile}
+        loading={isLoadingTemplatePreview}
+        errorMessage={templatePreviewError}
+        result={templatePreviewResult}
+        onRefresh={() => {
+          void loadTemplatePreview(selectedTemplateProfile);
         }}
       />
       {openKnowledgeGraph ? (

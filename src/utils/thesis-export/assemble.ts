@@ -16,6 +16,12 @@ export type TemplateDocumentStyleOverrides = {
   heading3?: TemplateStyleOverride;
   referenceTitle?: TemplateStyleOverride;
   referenceItem?: TemplateStyleOverride;
+  // 正文内容样式
+  bodyText?: TemplateStyleOverride;
+  // 关键词样式
+  keywordsText?: TemplateStyleOverride;
+  // 致谢标题样式
+  acknowledgementsTitle?: TemplateStyleOverride;
 };
 
 type LayoutWithOverrides = PaperLayoutConfig & {
@@ -58,6 +64,12 @@ function collectStyleOverrides(profile: TemplateProfile): TemplateDocumentStyleO
     ),
     referenceItem: toStyleOverride(
       pickHighestConfidenceRole(profile, "reference-item")
+    ),
+    // 新增：正文内容与致谢标题样式
+    bodyText: toStyleOverride(pickHighestConfidenceRole(profile, "body-text")),
+    keywordsText: toStyleOverride(pickHighestConfidenceRole(profile, "body-text")),
+    acknowledgementsTitle: toStyleOverride(
+      pickHighestConfidenceRole(profile, "acknowledgements-title")
     ),
   };
 }

@@ -9,7 +9,9 @@ type FormatCheckPanelProps = {
   validation: TemplateValidationResult | null;
   onOpenLibrary: () => void;
   onOpenConfirm: () => void;
+  onOpenPreview: () => void;
   onValidate: () => void;
+  previewing: boolean;
   validating: boolean;
 };
 
@@ -29,7 +31,9 @@ function FormatCheckPanel(props: FormatCheckPanelProps) {
     validation,
     onOpenLibrary,
     onOpenConfirm,
+    onOpenPreview,
     onValidate,
+    previewing,
     validating,
   } = props;
   const pendingCount =
@@ -61,6 +65,15 @@ function FormatCheckPanel(props: FormatCheckPanelProps) {
               disabled={!profile || validating}
             >
               {validating ? "体检中..." : "重新体检"}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onOpenPreview}
+              disabled={!profile || previewing}
+            >
+              {previewing ? "试预览中..." : "关键页试预览"}
             </Button>
           </div>
         </CardTitle>

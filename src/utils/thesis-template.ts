@@ -114,15 +114,22 @@ function createBodyParagraph(
     lineSpacing?: number;
     firstLineIndentChars?: number;
   },
-  layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig()
+  layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig(),
+  styleOverride?: TemplateStyleOverride
 ) {
   const lineSpacing = options?.lineSpacing ?? layoutConfig.lineSpacing ?? 1.5;
-  const fontFamily = options?.fontFamily || layoutConfig.bodyFontFamily || "SimSun";
-  const fontSize = options?.fontSize ?? layoutConfig.bodyFontSize ?? 12;
+  // 优先使用 styleOverride 的字体，其次使用 options 的字体，最后使用 layoutConfig 的字体
+  const fontFamily = styleOverride?.fontFamily || options?.fontFamily || layoutConfig.bodyFontFamily || "SimSun";
+  const fontSize = styleOverride?.fontSizePt ?? options?.fontSize ?? layoutConfig.bodyFontSize ?? 12;
   const firstLineIndentChars =
     options?.firstLineIndentChars ?? layoutConfig.firstLineIndentChars ?? 2;
+  // 粗体由 styleOverride 决定，如果没有则使用 options 的值
+  const bold = styleOverride?.bold ?? options?.bold;
+  // 对齐方式由 styleOverride 决定
+  const alignment = resolveAlignment(styleOverride?.alignment) || options?.alignment || AlignmentType.JUSTIFIED;
+
   return new Paragraph({
-    alignment: options?.alignment || AlignmentType.JUSTIFIED,
+    alignment,
     spacing: {
       line: lineSpacingToTwip(lineSpacing * 10),
       after: Math.round((options?.spacingAfter ?? 0) * 20),
@@ -133,7 +140,7 @@ function createBodyParagraph(
         : { firstLine: firstLineIndentChars * 210 },
     children: [
       createRun(text, {
-        bold: options?.bold,
+        bold,
         italics: options?.italics,
         font: fontFamily,
         size: ptToHalfPoint(fontSize),
@@ -237,21 +244,133 @@ function createBodyFooter(
   });
 }
 
+/**
+ * 创建正文页眉，支持左右分栏文本
+ * 若同时存在 left 和 right 文本，则左对齐显示 left，右对齐显示 right
+ * 若只有一侧文本，则居中显示
+ */
 function createBodyHeader(
   text = "毕业论文",
   layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig()
 ) {
-  const headerText =
-    layoutConfig.headerTextLeft || layoutConfig.headerTextRight || text;
+  const leftText = layoutConfig.headerTextLeft?.trim();
+  const rightText = layoutConfig.headerTextRight?.trim();
+  const onlyLeft = leftText && !rightText;
+  const onlyRight = rightText && !leftText;
+  const hasNeither = !leftText && !rightText;
+
+  // 兜底：若两侧都为空，使用默认文本居中显示
+  if (hasNeither) {
+    return new Header({
+      children: [
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text,
+              font: layoutConfig.bodyFontFamily || "SimSun",
+              size: ptToHalfPoint(10.5),
+            }),
+          ],
+        }),
+      ],
+    });
+  }
+
+  // 只有一侧有文本时，居中显示
+  if (onlyLeft) {
+    return new Header({
+      children: [
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: leftText,
+              font: layoutConfig.bodyFontFamily || "SimSun",
+              size: ptToHalfPoint(10.5),
+            }),
+          ],
+        }),
+      ],
+    });
+  }
+
+  if (onlyRight) {
+    return new Header({
+      children: [
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: rightText,
+              font: layoutConfig.bodyFontFamily || "SimSun",
+              size: ptToHalfPoint(10.5),
+            }),
+          ],
+        }),
+      ],
+    });
+  }
+
+  // 两侧都有文本时，使用表格实现左右分栏效果
+  // 左侧文本左对齐，右侧文本右对齐
   return new Header({
     children: [
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new TextRun({
-            text: headerText,
-            font: layoutConfig.bodyFontFamily || "SimSun",
-            size: ptToHalfPoint(10.5),
+      new Table({
+        width: {
+          size: 100,
+          type: WidthType.PERCENTAGE,
+        },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0 },
+          bottom: { style: BorderStyle.NONE, size: 0 },
+          left: { style: BorderStyle.NONE, size: 0 },
+          right: { style: BorderStyle.NONE, size: 0 },
+          insideHorizontal: { style: BorderStyle.NONE, size: 0 },
+          insideVertical: { style: BorderStyle.NONE, size: 0 },
+        },
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                width: {
+                  size: 50,
+                  type: WidthType.PERCENTAGE,
+                },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.LEFT,
+                    children: [
+                      new TextRun({
+                        text: leftText,
+                        font: layoutConfig.bodyFontFamily || "SimSun",
+                        size: ptToHalfPoint(10.5),
+                      }),
+                    ],
+                  }),
+                ],
+                verticalAlign: "center",
+              }),
+              new TableCell({
+                width: {
+                  size: 50,
+                  type: WidthType.PERCENTAGE,
+                },
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.RIGHT,
+                    children: [
+                      new TextRun({
+                        text: rightText,
+                        font: layoutConfig.bodyFontFamily || "SimSun",
+                        size: ptToHalfPoint(10.5),
+                      }),
+                    ],
+                  }),
+                ],
+                verticalAlign: "center",
+              }),
+            ],
           }),
         ],
       }),
@@ -355,7 +474,8 @@ function buildThreeLineTable(rows: string[][]) {
 
 function buildMarkdownBlocks(
   markdown: string,
-  layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig()
+  layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig(),
+  styleOverride?: TemplateStyleOverride
 ) {
   const blocks: Array<Paragraph | Table> = [];
   const lines = markdown.split("\n");
@@ -364,7 +484,7 @@ function buildMarkdownBlocks(
   const flushParagraph = () => {
     const text = stripMarkdown(paragraphBuffer.join(" "));
     if (text) {
-      blocks.push(createBodyParagraph(text, undefined, layoutConfig));
+      blocks.push(createBodyParagraph(text, undefined, layoutConfig, styleOverride));
     }
     paragraphBuffer = [];
   };
@@ -404,6 +524,9 @@ function buildMarkdownBlocks(
 
     if (/^[-*]\s+/.test(trimmed)) {
       flushParagraph();
+      // 列表项也应用 bodyText 样式
+      const listFont = styleOverride?.fontFamily || layoutConfig.bodyFontFamily || "SimSun";
+      const listSize = styleOverride?.fontSizePt ?? layoutConfig.bodyFontSize ?? 12;
       blocks.push(
         new Paragraph({
           bullet: { level: 0 },
@@ -412,8 +535,8 @@ function buildMarkdownBlocks(
                 },
           children: [
             createRun(stripMarkdown(trimmed.replace(/^[-*]\s+/, "")), {
-              font: layoutConfig.bodyFontFamily || "SimSun",
-              size: ptToHalfPoint(layoutConfig.bodyFontSize || 12),
+              font: listFont,
+              size: ptToHalfPoint(listSize),
             }),
           ],
         })
@@ -680,6 +803,8 @@ function createAbstractSectionChildren(
   const abstractTitleOverride = isEnglish
     ? styleOverrides?.abstractTitleEn
     : styleOverrides?.abstractTitleZh;
+  const bodyTextOverride = styleOverrides?.bodyText;
+  const keywordsOverride = styleOverrides?.keywordsText;
 
   const titleParagraph = new Paragraph({
     alignment: paragraphAlignment(abstractTitleOverride, AlignmentType.CENTER),
@@ -714,6 +839,19 @@ function createAbstractSectionChildren(
     ],
   });
 
+  const contentParagraph = createBodyParagraph(
+    content || "请补充摘要内容。",
+    undefined,
+    layoutConfig,
+    bodyTextOverride
+  );
+
+  // 关键词应用 keywordsText 样式覆盖
+  const keywordsFont = keywordsOverride?.fontFamily ||
+    (heading === "Abstract" ? "Times New Roman" : layoutConfig.bodyFontFamily || "SimHei");
+  const keywordsSize = keywordsOverride?.fontSizePt ?? layoutConfig.bodyFontSize ?? 12;
+  const keywordsBold = keywordsOverride?.bold ?? true;
+
   return [
     titleParagraph,
     ...(subtitle
@@ -733,7 +871,7 @@ function createAbstractSectionChildren(
         ]
       : []),
     headingParagraph,
-    createBodyParagraph(content || "请补充摘要内容。", undefined, layoutConfig),
+    contentParagraph,
     new Paragraph({
       spacing: {
         before: 120,
@@ -741,12 +879,9 @@ function createAbstractSectionChildren(
       children: [
         new TextRun({
           text: `${keywordsLabel}：${keywords.join("；") || "请补充关键词"}`,
-          font:
-            heading === "Abstract"
-              ? "Times New Roman"
-              : layoutConfig.bodyFontFamily || "SimHei",
-          bold: true,
-          size: ptToHalfPoint(layoutConfig.bodyFontSize || 12),
+          font: keywordsFont,
+          bold: keywordsBold,
+          size: ptToHalfPoint(keywordsSize),
         }),
       ],
     }),
@@ -856,12 +991,17 @@ function buildArtifactNodes(
 
   if (artifact.note) {
     nodes.push(
-      createBodyParagraph(artifact.note, {
-        alignment: AlignmentType.CENTER,
-        firstLineIndent: false,
-        italics: true,
-        fontSize: 10.5,
-      }, layoutConfig)
+      createBodyParagraph(
+        artifact.note,
+        {
+          alignment: AlignmentType.CENTER,
+          firstLineIndent: false,
+          italics: true,
+          fontSize: 10.5,
+        },
+        layoutConfig,
+        undefined // 图注不应用 bodyText 样式
+      )
     );
   }
 
@@ -872,6 +1012,7 @@ function buildBodyChildren(paperDocument: ReturnType<typeof normalizePaperDocume
   const children: Array<Paragraph | Table> = [];
   const layoutConfig = paperDocument.layoutConfig;
   const styleOverrides = layoutConfig.styleOverrides;
+  const bodyTextOverride = styleOverrides?.bodyText;
 
   paperDocument.bodySections.forEach((section, index) => {
     const sectionTitle =
@@ -887,7 +1028,8 @@ function buildBodyChildren(paperDocument: ReturnType<typeof normalizePaperDocume
     children.push(
       createHeading(sectionTitle, section.level, layoutConfig, headingOverride)
     );
-    children.push(...buildMarkdownBlocks(section.markdown, layoutConfig));
+    // 正文内容应用 bodyText 样式
+    children.push(...buildMarkdownBlocks(section.markdown, layoutConfig, bodyTextOverride));
 
     const chapterNumber =
       section.numbering.split(".")[0] || String(index + 1);
@@ -1079,11 +1221,12 @@ export async function buildTemplateThesisDocxBuffer(input: PaperDocument) {
           default: createBodyFooter(layoutConfig),
         },
         children: [
-          createHeading("致谢", 1, layoutConfig),
+          createHeading("致谢", 1, layoutConfig, layoutConfig.styleOverrides?.acknowledgementsTitle),
           createBodyParagraph(
             stripMarkdown(templateMeta.acknowledgements),
             undefined,
-            layoutConfig
+            layoutConfig,
+            layoutConfig.styleOverrides?.bodyText
           ),
         ],
       },
@@ -1101,7 +1244,7 @@ export async function buildTemplateThesisDocxBuffer(input: PaperDocument) {
           paperDocument.appendixSections.length > 0
             ? paperDocument.appendixSections.flatMap((section) => [
                 createHeading(section.heading, 1, layoutConfig),
-                ...buildMarkdownBlocks(section.markdown, layoutConfig),
+                ...buildMarkdownBlocks(section.markdown, layoutConfig, layoutConfig.styleOverrides?.bodyText),
               ])
             : [
                 createHeading("附录", 1, layoutConfig),
@@ -1110,7 +1253,8 @@ export async function buildTemplateThesisDocxBuffer(input: PaperDocument) {
                   {
                     firstLineIndent: false,
                   },
-                  layoutConfig
+                  layoutConfig,
+                  layoutConfig.styleOverrides?.bodyText
                 ),
               ],
       },
