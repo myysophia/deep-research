@@ -10,6 +10,23 @@ export const runtime = "nodejs";
 const requestSchema = z.object({
   profile: templateProfileSchema,
   formatSpecId: z.string().optional(),
+  diagnostics: z.object({
+    hasHeader: z.boolean().optional(),
+    hasFooter: z.boolean().optional(),
+    hasPageNumberField: z.boolean().optional(),
+    completenessMetrics: z.object({
+      hasMultipleSections: z.boolean().optional(),
+      hasCover: z.boolean().optional(),
+      hasAbstract: z.boolean().optional(),
+      hasBody: z.boolean().optional(),
+      hasReferences: z.boolean().optional(),
+      headingLevelCoverage: z.object({
+        level1: z.boolean().optional(),
+        level2: z.boolean().optional(),
+        level3: z.boolean().optional(),
+      }).optional(),
+    }).optional(),
+  }).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -23,7 +40,8 @@ export async function POST(req: NextRequest) {
   try {
     const result = validateTemplateProfile(
       parsed.data.profile,
-      parsed.data.formatSpecId
+      parsed.data.formatSpecId,
+      parsed.data.diagnostics
     );
     return jsonOk(result);
   } catch (error) {

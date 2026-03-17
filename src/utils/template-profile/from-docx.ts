@@ -181,6 +181,21 @@ export async function extractTemplateProfileFromDocx(params: {
     return item;
   });
 
+  // ── 学校名称检测增强（基于文档内容和页眉页脚）───────────────
+  const baseDiagnostics = (base.diagnostics || {}) as TemplateProfileDiagnostics;
+  const schoolNameCandidates = [...(baseDiagnostics.schoolNameCandidates || [])];
+  // 从页眉页脚中提取可能的学校名称
+  const headerFooterSchoolMatch = headerFooter.combinedText.match(/([^\s]{2,10})(大学|学院)/gu);
+  if (headerFooterSchoolMatch) {
+    headerFooterSchoolMatch.forEach((match) => {
+      const candidate = match.trim();
+      if (candidate.length >= 3 && !schoolNameCandidates.includes(candidate)) {
+        schoolNameCandidates.push(candidate);
+      }
+    });
+  }
+  const enhancedSchoolName = schoolNameCandidates[0] || base.profile.schoolName;
+
   // ── 综合置信分计算 ────────────────────────────────────────
   // styleRoles 最多贡献 +0.18；section 数量 +0.05；numbering +0.03；header/footer 各 +0.02
   const confidenceScore = Math.min(
@@ -192,13 +207,16 @@ export async function extractTemplateProfileFromDocx(params: {
         (sectionRules.length > 0 ? 0.05 : 0) +
         (hasHeadingNumbering ? 0.03 : 0) +
         (headerFooter.hasHeader ? 0.02 : 0) +
-        (headerFooter.hasFooter ? 0.02 : 0)
+        (headerFooter.hasFooter ? 0.02 : 0) +
+        (headerFooter.hasPageNumberField ? 0.02 : 0) +
+        (enhancedSchoolName ? 0.01 : 0)
       ).toFixed(2)
     )
   );
 
   const profile: TemplateProfile = {
     ...base.profile,
+    schoolName: enhancedSchoolName,
     styleRoles,
     pageRule,
     sections,
@@ -227,6 +245,25 @@ export async function extractTemplateProfileFromDocx(params: {
         hasPageNumber: i.hasPageNumber,
         textContent: i.textContent,
       })),
+      textLength: baseDiagnostics.textLength,
+      paragraphEstimate: baseDiagnostics.paragraphEstimate,
+      schoolNameCandidates,
+      completenessMetrics: {
+        hasMultipleSections: sections.filter((s) => s.detected).length >= 3,
+        hasCover: sections.find((s) => s.key === "cover")?.detected || false,
+        hasAbstract:
+          sections.some(
+            (s) =>
+              (s.key === "abstract-zh" || s.key === "abstract-en") && s.detected
+          ) || false,
+        hasBody: sections.find((s) => s.key === "body")?.detected || false,
+        hasReferences: sections.find((s) => s.key === "references")?.detected || false,
+        headingLevelCoverage: {
+          level1: styleRoles.some((r) => r.role === "heading-1"),
+          level2: styleRoles.some((r) => r.role === "heading-2"),
+          level3: styleRoles.some((r) => r.role === "heading-3"),
+        },
+      },
     },
   };
 }

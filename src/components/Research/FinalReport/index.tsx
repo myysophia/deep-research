@@ -69,6 +69,46 @@ const formSchema = z.object({
   requirement: z.string().optional(),
 });
 
+function buildTemplateDiagnostics(
+  profile?: TemplateProfile,
+  diagnostics?: TemplateProfileDiagnostics
+): TemplateProfileDiagnostics | undefined {
+  if (!profile && !diagnostics) return undefined;
+  if (!profile) return diagnostics;
+
+  return {
+    hasHeader: Boolean(profile.pageRule.headerTextLeft || profile.pageRule.headerTextRight),
+    hasFooter: Boolean(profile.pageRule.footerText),
+    hasPageNumberField: Boolean(profile.pageRule.pageNumberPosition),
+    ...diagnostics,
+    completenessMetrics: {
+      hasMultipleSections:
+        profile.sections.filter((item) => item.detected).length >= 3,
+      hasCover: profile.sections.some(
+        (item) => item.key === "cover" && item.detected
+      ),
+      hasAbstract: profile.sections.some(
+        (item) =>
+          (item.key === "abstract-zh" || item.key === "abstract-en") &&
+          item.detected
+      ),
+      hasBody: profile.sections.some(
+        (item) => item.key === "body" && item.detected
+      ),
+      hasReferences: profile.sections.some(
+        (item) => item.key === "references" && item.detected
+      ),
+      headingLevelCoverage: {
+        level1: profile.styleRoles.some((item) => item.role === "heading-1"),
+        level2: profile.styleRoles.some((item) => item.role === "heading-2"),
+        level3: profile.styleRoles.some((item) => item.role === "heading-3"),
+        ...diagnostics?.completenessMetrics?.headingLevelCoverage,
+      },
+      ...diagnostics?.completenessMetrics,
+    },
+  };
+}
+
 function FinalReport() {
   const { t } = useTranslation();
   const taskStore = useTaskStore();
@@ -241,7 +281,10 @@ function FinalReport() {
   }, []);
 
   const runTemplateValidation = useCallback(
-    async (profile = selectedTemplateProfile) => {
+    async (
+      profile = selectedTemplateProfile,
+      diagnostics?: TemplateProfileDiagnostics
+    ) => {
       if (!profile) return;
 
       try {
@@ -253,6 +296,7 @@ function FinalReport() {
           },
           body: JSON.stringify({
             profile,
+            diagnostics: buildTemplateDiagnostics(profile, diagnostics),
           }),
         });
         const payload = await response.json().catch(() => null);
@@ -271,7 +315,10 @@ function FinalReport() {
   );
 
   const loadTemplatePreview = useCallback(
-    async (profile?: TemplateProfile) => {
+    async (
+      profile?: TemplateProfile,
+      diagnostics?: TemplateProfileDiagnostics
+    ) => {
       if (!profile) {
         setTemplatePreviewResult(null);
         setTemplatePreviewError("请先选择模板后再执行关键页试预览。");
@@ -289,6 +336,7 @@ function FinalReport() {
           body: JSON.stringify({
             profile,
             formatSpecId: profile.formatSpecId,
+            diagnostics: buildTemplateDiagnostics(profile, diagnostics),
           }),
         });
         const payload = await response.json().catch(() => null);
@@ -334,9 +382,11 @@ function FinalReport() {
       }
 
       const identifiedProfile = payload.data.profile as TemplateProfile;
+      const identifiedDiagnostics = payload.data
+        .diagnostics as TemplateProfileDiagnostics | undefined;
       const savedProfile = await persistTemplateProfile(identifiedProfile);
       saveTemplateProfile(savedProfile);
-      await runTemplateValidation(savedProfile);
+      await runTemplateValidation(savedProfile, identifiedDiagnostics);
       toast.success(
         `模板识别完成：${savedProfile.name}（置信度 ${Math.round(
           savedProfile.confidenceScore * 100

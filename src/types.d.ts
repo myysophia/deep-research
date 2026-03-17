@@ -185,6 +185,25 @@ interface FormatSpecSectionRule {
   order: number;
 }
 
+type KeywordSeparator = "，" | "," | "；" | ";" | "、" | "/";
+
+type ReferenceStyle =
+  | "gb-t-7714-2015-numeric"
+  | "gb-t-7714-2015-author-date"
+  | "apa-7"
+  | "mla-9"
+  | "chicago-17"
+  | "ieee";
+
+interface FormatSpecBodyChapterRule {
+  key: string;
+  label: string;
+  required: boolean;
+  order: number;
+  minLength?: number;
+  maxLength?: number;
+}
+
 interface FormatSpec {
   id: string;
   name: string;
@@ -197,12 +216,24 @@ interface FormatSpec {
   abstractZhMaxLength?: number;
   abstractEnMinLength?: number;
   abstractEnMaxLength?: number;
+  titleMinLength?: number;
+  titleMaxLength?: number;
+  bodyMinLength?: number;
+  bodyMaxLength?: number;
   keywordMinCount: number;
   keywordMaxCount: number;
+  keywordSeparator?: KeywordSeparator;
+  keywordSeparatorRequired?: boolean;
+  tocRequirePageNumbers?: boolean;
   referenceMinCount?: number;
   foreignReferenceMinCount?: number;
+  referenceStyle?: ReferenceStyle;
+  requireCitationStyleConsistency?: boolean;
   titleMaxLevel: 1 | 2 | 3 | 4 | 5;
   pageNumberPosition?: "left" | "center" | "right";
+  requireContinuousPageNumbers?: boolean;
+  allowFrontMatterPageNumberReset?: boolean;
+  bodyChapterRules?: FormatSpecBodyChapterRule[];
 }
 
 interface TemplateFieldAnchor {
@@ -340,6 +371,72 @@ interface TemplateValidationResult {
   issues: TemplateValidationIssue[];
   preview?: TemplateValidationPreview;
   detail?: TemplateValidationDetail;
+}
+
+interface TemplateProfileDiagnostics {
+  paragraphCount?: number;
+  styleCount?: number;
+  sectionCount?: number;
+  abstractNumCount?: number;
+  headingLinkedNumIds?: string[];
+  hasHeader?: boolean;
+  hasFooter?: boolean;
+  hasPageNumberField?: boolean;
+  textLength?: number;
+  paragraphEstimate?: number;
+  schoolNameCandidates?: string[];
+  headerFooterItems?: Array<{
+    fileName: string;
+    kind: "header" | "footer";
+    isEmpty: boolean;
+    hasPageNumber: boolean;
+    textContent: string;
+  }>;
+  completenessMetrics?: {
+    hasMultipleSections?: boolean;
+    hasCover?: boolean;
+    hasAbstract?: boolean;
+    hasBody?: boolean;
+    hasReferences?: boolean;
+    headingLevelCoverage?: {
+      level1?: boolean;
+      level2?: boolean;
+      level3?: boolean;
+    };
+  };
+}
+
+interface TemplateProfileDiagnostics {
+  paragraphCount?: number;
+  styleCount?: number;
+  sectionCount?: number;
+  abstractNumCount?: number;
+  headingLinkedNumIds?: string[];
+  hasHeader?: boolean;
+  hasFooter?: boolean;
+  hasPageNumberField?: boolean;
+  textLength?: number;
+  paragraphEstimate?: number;
+  schoolNameCandidates?: string[];
+  headerFooterItems?: Array<{
+    fileName: string;
+    kind: "header" | "footer";
+    isEmpty: boolean;
+    hasPageNumber: boolean;
+    textContent: string;
+  }>;
+  completenessMetrics?: {
+    hasMultipleSections?: boolean;
+    hasCover?: boolean;
+    hasAbstract?: boolean;
+    hasBody?: boolean;
+    hasReferences?: boolean;
+    headingLevelCoverage?: {
+      level1?: boolean;
+      level2?: boolean;
+      level3?: boolean;
+    };
+  };
 }
 
 interface TemplateEditablePageRuleFields {

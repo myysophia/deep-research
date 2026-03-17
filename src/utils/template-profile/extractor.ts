@@ -120,6 +120,46 @@ function detectFieldAnchors(text: string) {
   });
 }
 
+function normalizeSchoolNameCandidate(value: string) {
+  return value
+    .replace(/[：:]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/^[^\p{L}\p{N}（）()]+/gu, "")
+    .replace(/[^\p{L}\p{N}（）()]+$/gu, "")
+    .trim();
+}
+
+/**
+ * 检测学校名称候选。
+ * 从封面区域文本中提取完整学校名称，而不是只截取“大学/学院”前缀。
+ */
+function detectSchoolNameCandidates(text: string): string[] {
+  const candidates = new Set<string>();
+  const universityPatterns = [
+    /([\p{Script=Han}A-Za-z（）()]{2,24}(?:大学|学院))/gu,
+    /((?:[A-Z][A-Za-z]+\s){0,4}(?:University|College|Institute))/g,
+  ];
+
+  for (const pattern of universityPatterns) {
+    const matches = text.matchAll(pattern);
+    for (const match of matches) {
+      const candidate = normalizeSchoolNameCandidate(match[1] || match[0] || "");
+      if (!candidate) continue;
+      if (
+        /^(毕业论文|论文题目|指导教师|学院|专业|班级|学号|姓名|日期)$/u.test(
+          candidate
+        )
+      ) {
+        continue;
+      }
+      if (candidate.length < 4 || candidate.length > 24) continue;
+      candidates.add(candidate);
+    }
+  }
+
+  return Array.from(candidates).slice(0, 5);
+}
+
 function inferStyleRoles(text: string): TemplateStyleRole[] {
   const roles: TemplateStyleRole[] = [
     { role: "body-text", confidence: 0.35, fontFamily: "待识别" },
@@ -230,6 +270,7 @@ export function extractTemplateProfileFromText(params: {
   const now = Date.now();
   const sections = detectSections(text, formatSpec);
   const fieldAnchors = detectFieldAnchors(text);
+  const schoolNameCandidates = detectSchoolNameCandidates(text);
   const styleRoles = inferStyleRoles(text);
   const confirmationItems = buildConfirmationItems(
     sections,
@@ -268,6 +309,7 @@ export function extractTemplateProfileFromText(params: {
     },
     confirmationItems,
     confidenceScore,
+    schoolName: schoolNameCandidates[0] || undefined,
     createdAt: now,
     updatedAt: now,
   };
@@ -275,5 +317,10 @@ export function extractTemplateProfileFromText(params: {
   return {
     formatSpec,
     profile,
+    diagnostics: {
+      schoolNameCandidates,
+      textLength: text.length,
+      paragraphEstimate: (text.match(/\n/g) || []).length + 1,
+    },
   };
 }
