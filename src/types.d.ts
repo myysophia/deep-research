@@ -116,6 +116,173 @@ interface PaperDocument {
   templateMeta: ThesisTemplateMeta;
 }
 
+type ThesisType = "graduation-thesis" | "course-paper" | "proposal";
+
+type EducationLevel = "undergraduate" | "master" | "general";
+
+type TemplateSource = "platform" | "user-uploaded" | "user-curated";
+
+type TemplateDocumentKind = "blank-template" | "sample-paper";
+
+type TemplateSectionKey =
+  | "cover"
+  | "declaration"
+  | "authorization"
+  | "abstract-zh"
+  | "abstract-en"
+  | "toc"
+  | "body"
+  | "references"
+  | "acknowledgements"
+  | "appendix";
+
+type TemplateRole =
+  | "cover-title"
+  | "cover-field"
+  | "abstract-title-zh"
+  | "abstract-title-en"
+  | "toc-title"
+  | "body-text"
+  | "heading-1"
+  | "heading-2"
+  | "heading-3"
+  | "reference-title"
+  | "reference-item"
+  | "acknowledgements-title"
+  | "caption-table"
+  | "caption-figure";
+
+type TemplateValidationLevel = "error" | "warning" | "info";
+
+interface FormatSpecSectionRule {
+  key: TemplateSectionKey;
+  label: string;
+  required: boolean;
+  repeatable: boolean;
+  order: number;
+}
+
+interface FormatSpec {
+  id: string;
+  name: string;
+  description: string;
+  thesisType: ThesisType;
+  educationLevel: EducationLevel;
+  locale: string;
+  sectionRules: FormatSpecSectionRule[];
+  abstractZhMinLength?: number;
+  abstractZhMaxLength?: number;
+  abstractEnMinLength?: number;
+  abstractEnMaxLength?: number;
+  keywordMinCount: number;
+  keywordMaxCount: number;
+  referenceMinCount?: number;
+  foreignReferenceMinCount?: number;
+  titleMaxLevel: 1 | 2 | 3 | 4 | 5;
+  pageNumberPosition?: "left" | "center" | "right";
+}
+
+interface TemplateFieldAnchor {
+  key:
+    | "title"
+    | "subtitle"
+    | "college"
+    | "major"
+    | "className"
+    | "studentName"
+    | "studentId"
+    | "advisor"
+    | "completionDate";
+  label: string;
+  anchorText: string;
+  confidence: number;
+}
+
+interface TemplateStyleRole {
+  role: TemplateRole;
+  styleId?: string;
+  styleName?: string;
+  fontFamily?: string;
+  fontSizePt?: number;
+  bold?: boolean;
+  alignment?: string;
+  confidence: number;
+}
+
+interface TemplateSectionProfile {
+  key: TemplateSectionKey;
+  label: string;
+  detected: boolean;
+  order: number;
+  startAnchorText?: string;
+  confidence: number;
+}
+
+interface TemplatePageRule {
+  paperSize: "A4";
+  marginsCm: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+  hasDifferentFirstPage: boolean;
+  pageNumberStart?: number;
+  pageNumberFormat?: "decimal" | "roman";
+}
+
+interface TemplateConfirmationItem {
+  id: string;
+  type: "section" | "field" | "style" | "page-rule";
+  label: string;
+  description: string;
+  confidence: number;
+  resolved: boolean;
+  suggestedValue?: string;
+}
+
+interface TemplateValidationIssue {
+  level: TemplateValidationLevel;
+  code: string;
+  message: string;
+  field?: string;
+}
+
+interface TemplateValidationResult {
+  canExport: boolean;
+  issues: TemplateValidationIssue[];
+}
+
+interface TemplateProfile {
+  id: string;
+  name: string;
+  source: TemplateSource;
+  documentKind: TemplateDocumentKind;
+  formatSpecId: string;
+  thesisType: ThesisType;
+  educationLevel: EducationLevel;
+  originalFileName?: string;
+  sections: TemplateSectionProfile[];
+  fieldAnchors: TemplateFieldAnchor[];
+  styleRoles: TemplateStyleRole[];
+  pageRule: TemplatePageRule;
+  confirmationItems: TemplateConfirmationItem[];
+  confidenceScore: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface TemplateLibraryItem {
+  id: string;
+  name: string;
+  source: TemplateSource;
+  formatSpecId: string;
+  thesisType: ThesisType;
+  educationLevel: EducationLevel;
+  confidenceScore: number;
+  updatedAt: number;
+}
+
 interface PartialJson {
   value: JSONValue | undefined;
   state:
