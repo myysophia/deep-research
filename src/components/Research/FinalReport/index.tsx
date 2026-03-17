@@ -62,6 +62,7 @@ const PaperTemplateDialog = dynamic(() => import("./PaperTemplateDialog"));
 const TemplateLibraryDialog = dynamic(() => import("./TemplateLibraryDialog"));
 const FormatCheckPanel = dynamic(() => import("./FormatCheckPanel"));
 const TemplateConfirmDialog = dynamic(() => import("./TemplateConfirmDialog"));
+const TemplateEditDialog = dynamic(() => import("./TemplateEditDialog"));
 
 const formSchema = z.object({
   requirement: z.string().optional(),
@@ -87,6 +88,14 @@ function FinalReport() {
     useState<boolean>(false);
   const [openTemplateConfirmDialog, setOpenTemplateConfirmDialog] =
     useState<boolean>(false);
+  const [openTemplateEditDialog, setOpenTemplateEditDialog] =
+    useState<boolean>(false);
+  const [editingTemplateId, setEditingTemplateId] = useState<string>("");
+  const [templateHistory, setTemplateHistory] = useState<
+    Array<{ version: number; updatedAt: number; revisionNote?: string }>
+  >([]);
+  const [isSavingTemplateEdit, setIsSavingTemplateEdit] =
+    useState<boolean>(false);
   const [isIdentifyingTemplate, setIsIdentifyingTemplate] =
     useState<boolean>(false);
   const [isValidatingTemplate, setIsValidatingTemplate] =
@@ -100,7 +109,13 @@ function FinalReport() {
     (state) => state.latestValidation
   );
   const saveTemplateProfile = useTemplateStore((state) => state.saveProfile);
+  const applyProfileReplacement = useTemplateStore(
+    (state) => state.applyProfileReplacement
+  );
   const selectTemplate = useTemplateStore((state) => state.selectTemplate);
+  const updateCurrentTemplateEditableFields = useTemplateStore(
+    (state) => state.updateCurrentTemplateEditableFields
+  );
   const setTemplateValidation = useTemplateStore((state) => state.setValidation);
   const resolveConfirmationItem = useTemplateStore(
     (state) => state.resolveConfirmationItem
@@ -132,6 +147,10 @@ function FinalReport() {
     if (!selectedTemplateId) return undefined;
     return templateProfiles[selectedTemplateId];
   }, [selectedTemplateId, templateProfiles]);
+  const editingTemplateProfile = useMemo(() => {
+    if (!editingTemplateId) return undefined;
+    return templateProfiles[editingTemplateId];
+  }, [editingTemplateId, templateProfiles]);
   const previewPaperDocument = useMemo(
     () =>
       applyTemplateProfileToPaperDocument(
@@ -193,6 +212,25 @@ function FinalReport() {
     hydrateTemplateLibrary(items);
     return items;
   }, [hydrateTemplateLibrary]);
+
+  const loadTemplateHistory = useCallback(async (templateId: string) => {
+    const response = await fetch(
+      `/api/template/history/${encodeURIComponent(templateId)}`
+    );
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok || !payload?.ok) {
+      throw new Error(payload?.error?.message || "模板历史加载失败");
+    }
+
+    const history = (payload.data?.history || []) as Array<{
+      version: number;
+      updatedAt: number;
+      revisionNote?: string;
+    }>;
+    setTemplateHistory(history);
+    return history;
+  }, []);
 
   const runTemplateValidation = useCallback(
     async (profile = selectedTemplateProfile) => {
@@ -279,6 +317,46 @@ function FinalReport() {
     if (nextProfile) {
       await persistTemplateProfile(nextProfile);
       await runTemplateValidation(nextProfile);
+    }
+  }
+
+  async function handleOpenTemplateEdit(templateId: string) {
+    try {
+      selectTemplate(templateId);
+      await fetchTemplateDetail(templateId);
+      await loadTemplateHistory(templateId);
+      setEditingTemplateId(templateId);
+      setOpenTemplateEditDialog(true);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "模板详情加载失败");
+    }
+  }
+
+  async function handleSaveTemplateEdit(fields: TemplateProfileEditableFields) {
+    if (!editingTemplateId) return;
+
+    try {
+      setIsSavingTemplateEdit(true);
+      if (selectedTemplateId !== editingTemplateId) {
+        selectTemplate(editingTemplateId);
+      }
+
+      updateCurrentTemplateEditableFields(fields);
+      const draftProfile = useTemplateStore.getState().profiles[editingTemplateId];
+      if (!draftProfile) {
+        throw new Error("模板修正草稿生成失败");
+      }
+
+      const savedProfile = await persistTemplateProfile(draftProfile);
+      applyProfileReplacement(savedProfile);
+      await loadTemplateHistory(editingTemplateId);
+      await runTemplateValidation(savedProfile);
+      setOpenTemplateEditDialog(false);
+      toast.success("模板修正已保存，并已生成新版本");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "模板修正保存失败");
+    } finally {
+      setIsSavingTemplateEdit(false);
     }
   }
 
@@ -810,6 +888,9 @@ function FinalReport() {
         onSelect={(templateId) => {
           void handleSelectTemplate(templateId);
         }}
+        onEdit={(templateId) => {
+          void handleOpenTemplateEdit(templateId);
+        }}
         onUpload={(file, documentKind) => {
           void handleUploadTemplate(file, documentKind);
         }}
@@ -820,6 +901,17 @@ function FinalReport() {
         profile={selectedTemplateProfile}
         onResolve={(itemId, resolution) => {
           void handleResolveConfirmation(itemId, resolution);
+        }}
+      />
+      <TemplateEditDialog
+        open={openTemplateEditDialog}
+        onOpenChange={setOpenTemplateEditDialog}
+        profile={editingTemplateProfile}
+        formatSpecs={formatSpecs}
+        history={templateHistory}
+        saving={isSavingTemplateEdit}
+        onSave={(fields) => {
+          void handleSaveTemplateEdit(fields);
         }}
       />
       {openKnowledgeGraph ? (

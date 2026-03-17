@@ -20,6 +20,7 @@ type TemplateLibraryDialogProps = {
   selectedTemplateId: string;
   isUploading: boolean;
   onSelect: (templateId: string) => void;
+  onEdit: (templateId: string) => void;
   onUpload: (file: File, documentKind: TemplateDocumentKind) => void;
 };
 
@@ -33,6 +34,7 @@ function TemplateLibraryDialog(props: TemplateLibraryDialogProps) {
     selectedTemplateId,
     isUploading,
     onSelect,
+    onEdit,
     onUpload,
   } = props;
 
@@ -100,45 +102,71 @@ function TemplateLibraryDialog(props: TemplateLibraryDialogProps) {
                   formatSpecs.find((spec) => spec.id === item.formatSpecId)
                     ?.name ?? "通用规范";
                 return (
-                  <button
+                  <div
                     key={item.id}
-                    type="button"
-                    className={`rounded-xl border p-4 text-left transition-colors ${
+                    className={`rounded-xl border p-4 transition-colors ${
                       active
                         ? "border-primary bg-primary/5"
                         : "border-border hover:bg-accent/40"
                     }`}
-                    onClick={() => onSelect(item.id)}
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="space-y-2">
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {specName} · {item.thesisType} · {item.educationLevel}
+                    <div className="flex items-start justify-between gap-4">
+                      <button
+                        type="button"
+                        className="flex-1 text-left"
+                        onClick={() => onSelect(item.id)}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className="font-medium">{item.name}</div>
+                            {profile?.version ? (
+                              <span className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
+                                v{profile.version}
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {specName} · {item.thesisType} · {item.educationLevel}
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-[11px]">
+                            <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
+                              {item.source === "platform" ? "平台模板" : "用户模板"}
+                            </span>
+                            {profile?.schoolName ? (
+                              <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
+                                {profile.schoolName}
+                              </span>
+                            ) : null}
+                            <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
+                              置信度 {Math.round(item.confidenceScore * 100)}%
+                            </span>
+                            <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
+                              待确认 {pendingCount}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            最近更新{" "}
+                            {new Date(item.updatedAt).toLocaleString("zh-CN")}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 text-[11px]">
-                          <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
-                            {item.source === "platform" ? "平台模板" : "用户模板"}
+                      </button>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onEdit(item.id)}
+                        >
+                          修正模板
+                        </Button>
+                        {active ? (
+                          <span className="text-xs font-medium text-primary">
+                            当前使用
                           </span>
-                          <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
-                            置信度 {Math.round(item.confidenceScore * 100)}%
-                          </span>
-                          <span className="rounded-full border px-2 py-0.5 text-muted-foreground">
-                            待确认 {pendingCount}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          最近更新{" "}
-                          {new Date(item.updatedAt).toLocaleString("zh-CN")}
-                        </div>
+                        ) : null}
                       </div>
-                      {active ? (
-                        <span className="text-xs font-medium text-primary">
-                          当前使用
-                        </span>
-                      ) : null}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>

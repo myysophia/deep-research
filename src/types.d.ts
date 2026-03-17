@@ -339,6 +339,31 @@ interface TemplateValidationResult {
   detail?: TemplateValidationDetail;
 }
 
+interface TemplateEditablePageRuleFields {
+  headerTextLeft?: string;
+  headerTextRight?: string;
+  footerText?: string;
+  pageNumberPosition?: "left" | "center" | "right";
+}
+
+interface TemplateEditableSectionField {
+  key: TemplateSectionKey;
+  detected: boolean;
+  confidence: number;
+  startAnchorText?: string;
+}
+
+interface TemplateProfileEditableFields {
+  name: string;
+  schoolName?: string;
+  formatSpecId: string;
+  pageRule: TemplateEditablePageRuleFields;
+  sections: TemplateEditableSectionField[];
+  fieldAnchors: TemplateFieldAnchor[];
+  revisionNote?: string;
+  tags?: string[];
+}
+
 interface TemplateProfile {
   id: string;
   name: string;
@@ -353,6 +378,12 @@ interface TemplateProfile {
   styleRoles: TemplateStyleRole[];
   pageRule: TemplatePageRule;
   confirmationItems: TemplateConfirmationItem[];
+  version?: number;
+  originTemplateId?: string;
+  revisionNote?: string;
+  schoolName?: string;
+  tags?: string[];
+  lastEditedAt?: number;
   confidenceScore: number;
   createdAt: number;
   updatedAt: number;

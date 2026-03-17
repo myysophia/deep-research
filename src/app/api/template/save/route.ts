@@ -14,8 +14,11 @@ export async function POST(req: NextRequest) {
     return jsonError("INVALID_PARAMS", parsed.error.message, 400);
   }
 
+  // 提取可选的 revisionNote（非 schema 字段）
+  const { revisionNote } = body as { revisionNote?: string };
+
   try {
-    const saved = await templateRepo.save(parsed.data);
+    const saved = await templateRepo.save(parsed.data, revisionNote);
     return jsonOk(saved);
   } catch (error) {
     return jsonError("TEMPLATE_SAVE_FAILED", parseError(error), 500);

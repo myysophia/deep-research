@@ -153,6 +153,46 @@ export const templateConfirmationItemSchema = z.object({
   suggestedValue: z.string().optional(),
 });
 
+export const templateEditablePageRuleFieldsSchema = z.object({
+  headerTextLeft: z.string().optional(),
+  headerTextRight: z.string().optional(),
+  footerText: z.string().optional(),
+  pageNumberPosition: z.enum(["left", "center", "right"]).optional(),
+});
+
+export const templateEditableSectionFieldSchema = z.object({
+  key: templateSectionProfileSchema.shape.key,
+  detected: z.boolean(),
+  confidence: z.number().min(0).max(1),
+  startAnchorText: z.string().optional(),
+});
+
+export const templateProfileEditableFieldsSchema = z.object({
+  name: z.string().min(1),
+  schoolName: z.string().optional(),
+  formatSpecId: z.string().min(1),
+  pageRule: templateEditablePageRuleFieldsSchema,
+  sections: z.array(templateEditableSectionFieldSchema),
+  fieldAnchors: z.array(templateFieldAnchorSchema),
+  revisionNote: z.string().optional(),
+  tags: z.array(z.string().min(1)).optional(),
+});
+
+export const templateProfileEditablePatchSchema =
+  templateProfileEditableFieldsSchema
+    .extend({
+      pageRule: templateEditablePageRuleFieldsSchema.optional(),
+      sections: z.array(templateEditableSectionFieldSchema).optional(),
+      fieldAnchors: z.array(templateFieldAnchorSchema).optional(),
+    })
+    .partial({
+      name: true,
+      schoolName: true,
+      formatSpecId: true,
+      revisionNote: true,
+      tags: true,
+    });
+
 export const templateValidationIssueSchema = z.object({
   level: z.enum(["error", "warning", "info"]),
   code: z.string(),
@@ -181,6 +221,12 @@ export const templateProfileSchema = z.object({
   styleRoles: z.array(templateStyleRoleSchema),
   pageRule: templatePageRuleSchema,
   confirmationItems: z.array(templateConfirmationItemSchema),
+  version: z.number().int().positive().default(1),
+  originTemplateId: z.string().optional(),
+  revisionNote: z.string().optional(),
+  schoolName: z.string().optional(),
+  tags: z.array(z.string().min(1)).optional(),
+  lastEditedAt: z.number().int().nonnegative().optional(),
   confidenceScore: z.number().min(0).max(1),
   createdAt: z.number().int().nonnegative(),
   updatedAt: z.number().int().nonnegative(),
