@@ -19,6 +19,10 @@ function getIssueIcon(level: TemplateValidationLevel) {
   return <Info className="size-4 text-sky-500" />;
 }
 
+function formatMargins(margins: TemplatePageRule["marginsCm"]) {
+  return `上 ${margins.top} / 下 ${margins.bottom} / 左 ${margins.left} / 右 ${margins.right} cm`;
+}
+
 function FormatCheckPanel(props: FormatCheckPanelProps) {
   const {
     profile,
@@ -106,6 +110,100 @@ function FormatCheckPanel(props: FormatCheckPanelProps) {
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : null}
+
+            {validation.preview ? (
+              <div className="rounded-lg border border-border/60 p-3 text-sm">
+                <div className="font-medium">模板预览</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  版式：{validation.preview.layout.paperSize} · 页边距{" "}
+                  {formatMargins(validation.preview.layout.marginsCm)}
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  已识别结构 {validation.preview.sectionCount} 项 · 图表{" "}
+                  {validation.preview.artifactCount} 项
+                  {validation.preview.anchorCoverage
+                    ? ` · 字段锚点 ${validation.preview.anchorCoverage.captured}/${validation.preview.anchorCoverage.total}`
+                    : ""}
+                </div>
+                {validation.preview.highlights.length > 0 ? (
+                  <div className="mt-3 space-y-2">
+                    {validation.preview.highlights.map((highlight, index) => (
+                      <div
+                        key={`${highlight.heading}-${index}`}
+                        className="rounded-md bg-muted/30 p-2"
+                      >
+                        <div className="text-xs font-medium">{highlight.heading}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {highlight.snippet}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {validation.preview.keyPages?.length ? (
+                  <div className="mt-3 space-y-2">
+                    {validation.preview.keyPages.map((item) => (
+                      <div
+                        key={`${item.sectionKey}-${item.pageNumber}`}
+                        className="rounded-md border border-border/50 p-2"
+                      >
+                        <div className="text-xs font-medium">
+                          第 {item.pageNumber} 页 · {item.label}
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {item.summary} · 覆盖率 {Math.round(item.coverage * 100)}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {validation.detail ? (
+              <div className="rounded-lg border border-border/60 p-3 text-sm">
+                <div className="font-medium">规范差异与建议</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  当前对照规范：
+                  {validation.detail.formatSpecName || validation.detail.formatSpecId}
+                </div>
+                {validation.detail.differences.length > 0 ? (
+                  <div className="mt-3 space-y-2">
+                    {validation.detail.differences.map((item, index) => (
+                      <div
+                        key={`${item.key}-${index}`}
+                        className="rounded-md bg-muted/30 p-2"
+                      >
+                        <div className="text-xs font-medium">{item.message}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          期望：{item.expected}
+                          {item.actual ? ` · 当前：${item.actual}` : ""}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-3 text-xs text-muted-foreground">
+                    暂未发现可结构化展示的规范差异。
+                  </div>
+                )}
+                {validation.detail.suggestions.length > 0 ? (
+                  <div className="mt-3 space-y-2">
+                    {validation.detail.suggestions.map((item, index) => (
+                      <div
+                        key={`${item.target}-${index}`}
+                        className="rounded-md border border-border/50 p-2"
+                      >
+                        <div className="text-xs font-medium">{item.target}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {item.message}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

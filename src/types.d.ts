@@ -70,6 +70,26 @@ interface PaperLayoutConfig {
   pageNumberPosition: "left" | "center" | "right";
   frontMatterPageNumberStyle: "roman" | "decimal";
   bodyPageNumberStyle: "decimal";
+  styleOverrides?: TemplateDocumentStyleOverrides;
+  templatePageRule?: TemplatePageRule;
+}
+
+interface TemplateStyleOverride {
+  fontFamily?: string;
+  fontSizePt?: number;
+  bold?: boolean;
+  alignment?: string;
+}
+
+interface TemplateDocumentStyleOverrides {
+  abstractTitleZh?: TemplateStyleOverride;
+  abstractTitleEn?: TemplateStyleOverride;
+  tocTitle?: TemplateStyleOverride;
+  heading1?: TemplateStyleOverride;
+  heading2?: TemplateStyleOverride;
+  heading3?: TemplateStyleOverride;
+  referenceTitle?: TemplateStyleOverride;
+  referenceItem?: TemplateStyleOverride;
 }
 
 interface PaperSection {
@@ -229,6 +249,10 @@ interface TemplatePageRule {
   hasDifferentFirstPage: boolean;
   pageNumberStart?: number;
   pageNumberFormat?: "decimal" | "roman";
+  headerTextLeft?: string;
+  headerTextRight?: string;
+  footerText?: string;
+  pageNumberPosition?: "left" | "center" | "right";
 }
 
 interface TemplateConfirmationItem {
@@ -250,9 +274,69 @@ interface TemplateValidationIssue {
   field?: string;
 }
 
+interface TemplatePreviewAnchor {
+  key: TemplateFieldAnchor["key"];
+  label: string;
+  confidence: number;
+}
+
+interface TemplatePreviewSnapshot {
+  pageNumber: number;
+  sectionKey: TemplateSectionKey;
+  label: string;
+  summary: string;
+  coverage: number;
+  layout: {
+    paperSize: "A4";
+    marginsCm: TemplatePageRule["marginsCm"];
+  };
+  anchorHighlights?: TemplatePreviewAnchor[];
+}
+
+interface TemplateValidationHighlight {
+  heading: string;
+  snippet: string;
+}
+
+interface TemplateValidationDifference {
+  key: string;
+  expected: string;
+  actual?: string;
+  message: string;
+}
+
+interface TemplateValidationSuggestion {
+  target: string;
+  message: string;
+}
+
+interface TemplateValidationDetail {
+  formatSpecId: string;
+  formatSpecName?: string;
+  differences: TemplateValidationDifference[];
+  suggestions: TemplateValidationSuggestion[];
+}
+
+interface TemplateValidationPreview {
+  layout: {
+    paperSize: "A4";
+    marginsCm: TemplatePageRule["marginsCm"];
+  };
+  highlights: TemplateValidationHighlight[];
+  sectionCount: number;
+  artifactCount: number;
+  keyPages?: TemplatePreviewSnapshot[];
+  anchorCoverage?: {
+    total: number;
+    captured: number;
+  };
+}
+
 interface TemplateValidationResult {
   canExport: boolean;
   issues: TemplateValidationIssue[];
+  preview?: TemplateValidationPreview;
+  detail?: TemplateValidationDetail;
 }
 
 interface TemplateProfile {

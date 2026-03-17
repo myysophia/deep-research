@@ -34,7 +34,7 @@ export const formatSpecSchema = z.object({
   keywordMinCount: z.number().int().positive(),
   keywordMaxCount: z.number().int().positive(),
   referenceMinCount: z.number().int().positive().optional(),
-  foreignReferenceMinCount: z.number().int().positive().optional(),
+  foreignReferenceMinCount: z.number().int().nonnegative().optional(),
   titleMaxLevel: z.union([
     z.literal(1),
     z.literal(2),

@@ -13,6 +13,7 @@ interface TemplateStore {
 
 interface TemplateActions {
   hydrateBuiltinSpecs: (specs?: FormatSpec[]) => void;
+  hydrateLibrary: (items: TemplateLibraryItem[]) => void;
   saveProfile: (profile: TemplateProfile) => void;
   selectTemplate: (templateId: string) => void;
   selectFormatSpec: (formatSpecId: string) => void;
@@ -49,6 +50,29 @@ export const useTemplateStore = create(
             specs?.[0]?.id ||
             defaultValues.selectedFormatSpecId,
         })),
+      hydrateLibrary: (items) =>
+        set((state) => {
+          const merged = new Map<string, TemplateLibraryItem>();
+          for (const item of state.library) {
+            merged.set(item.id, item);
+          }
+          for (const item of items) {
+            merged.set(item.id, item);
+          }
+          const nextLibrary = Array.from(merged.values()).sort(
+            (a, b) => b.updatedAt - a.updatedAt
+          );
+          const hasSelected = nextLibrary.some(
+            (item) => item.id === state.selectedTemplateId
+          );
+
+          return {
+            library: nextLibrary,
+            selectedTemplateId: hasSelected
+              ? state.selectedTemplateId
+              : nextLibrary[0]?.id || "",
+          };
+        }),
       saveProfile: (profile) =>
         set((state) => {
           const nextLibrary = state.library.filter((item) => item.id !== profile.id);
@@ -62,6 +86,7 @@ export const useTemplateStore = create(
             confidenceScore: profile.confidenceScore,
             updatedAt: profile.updatedAt,
           });
+          nextLibrary.sort((a, b) => b.updatedAt - a.updatedAt);
 
           return {
             profiles: {

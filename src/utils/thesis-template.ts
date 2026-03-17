@@ -62,6 +62,45 @@ function createRun(text: string, options?: Partial<IRunOptions>) {
   });
 }
 
+function resolveAlignment(
+  alignment?: string
+): (typeof AlignmentType)[keyof typeof AlignmentType] | undefined {
+  if (!alignment) return undefined;
+  const normalized = alignment.toLowerCase();
+  if (normalized.includes("center")) return AlignmentType.CENTER;
+  if (normalized.includes("right")) return AlignmentType.RIGHT;
+  if (normalized.includes("justify")) return AlignmentType.JUSTIFIED;
+  if (normalized.includes("left")) return AlignmentType.LEFT;
+  return undefined;
+}
+
+function paragraphAlignment(
+  override?: TemplateStyleOverride,
+  fallback?: (typeof AlignmentType)[keyof typeof AlignmentType]
+) {
+  return resolveAlignment(override?.alignment) ?? fallback;
+}
+
+function buildStyledRun(options: {
+  text: string;
+  override?: TemplateStyleOverride;
+  defaultFont: string;
+  defaultSizePt: number;
+  bold?: boolean;
+  italics?: boolean;
+}) {
+  const { text, defaultFont, defaultSizePt, override, bold, italics } = options;
+  const font = override?.fontFamily || defaultFont;
+  const sizePt = override?.fontSizePt ?? defaultSizePt;
+  return new TextRun({
+    text,
+    font,
+    size: ptToHalfPoint(sizePt),
+    bold: override?.bold ?? bold,
+    italics,
+  });
+}
+
 function createBodyParagraph(
   text: string,
   options?: {
@@ -106,11 +145,12 @@ function createBodyParagraph(
 function createHeading(
   text: string,
   level: 1 | 2 | 3,
-  layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig()
+  layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig(),
+  override?: TemplateStyleOverride
 ) {
   const baseTitleSize = layoutConfig.titleFontSize || 15;
   const bodyFontSize = layoutConfig.bodyFontSize || 12;
-  const size =
+  const computedSize =
     level === 1
       ? baseTitleSize
       : level === 2
@@ -130,12 +170,14 @@ function createHeading(
       after: 100,
       line: lineSpacingToTwip(20),
     },
+    alignment: paragraphAlignment(override, AlignmentType.LEFT),
     children: [
-      new TextRun({
+      buildStyledRun({
         text,
+        override,
+        defaultFont: layoutConfig.titleFontFamily || "SimHei",
+        defaultSizePt: computedSize,
         bold: true,
-        font: layoutConfig.titleFontFamily || "SimHei",
-        size: ptToHalfPoint(size),
       }),
     ],
   });
@@ -633,22 +675,47 @@ function createAbstractSectionChildren(
   keywords: string[],
   layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig()
 ) {
+  const styleOverrides = layoutConfig.styleOverrides;
+  const isEnglish = heading.trim().toLowerCase() === "abstract";
+  const abstractTitleOverride = isEnglish
+    ? styleOverrides?.abstractTitleEn
+    : styleOverrides?.abstractTitleZh;
+
+  const titleParagraph = new Paragraph({
+    alignment: paragraphAlignment(abstractTitleOverride, AlignmentType.CENTER),
+    spacing: {
+      before: 200,
+      after: 120,
+    },
+    children: [
+      buildStyledRun({
+        text: title || "论文题目",
+        override: abstractTitleOverride,
+        defaultFont: layoutConfig.titleFontFamily || "SimHei",
+        defaultSizePt: layoutConfig.titleFontSize || 16,
+        bold: true,
+      }),
+    ],
+  });
+
+  const headingParagraph = new Paragraph({
+    alignment: paragraphAlignment(abstractTitleOverride, AlignmentType.CENTER),
+    spacing: {
+      after: 160,
+    },
+    children: [
+      buildStyledRun({
+        text: heading,
+        override: abstractTitleOverride,
+        defaultFont: layoutConfig.titleFontFamily || "SimHei",
+        defaultSizePt: Math.max(layoutConfig.titleFontSize - 1, 15),
+        bold: true,
+      }),
+    ],
+  });
+
   return [
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: {
-        before: 200,
-        after: 120,
-      },
-      children: [
-        new TextRun({
-          text: title || "论文题目",
-          font: layoutConfig.titleFontFamily || "SimHei",
-          bold: true,
-          size: ptToHalfPoint(layoutConfig.titleFontSize || 16),
-        }),
-      ],
-    }),
+    titleParagraph,
     ...(subtitle
       ? [
           new Paragraph({
@@ -665,20 +732,7 @@ function createAbstractSectionChildren(
           }),
         ]
       : []),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: {
-        after: 160,
-      },
-      children: [
-        new TextRun({
-          text: heading,
-          font: layoutConfig.titleFontFamily || "SimHei",
-          bold: true,
-          size: ptToHalfPoint(Math.max(layoutConfig.titleFontSize - 1, 15)),
-        }),
-      ],
-    }),
+    headingParagraph,
     createBodyParagraph(content || "请补充摘要内容。", undefined, layoutConfig),
     new Paragraph({
       spacing: {
@@ -699,20 +753,23 @@ function createAbstractSectionChildren(
   ];
 }
 
-function createTocChildren() {
+function createTocChildren(
+  layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig()
+) {
   return [
     new Paragraph({
-      alignment: AlignmentType.CENTER,
+      alignment: paragraphAlignment(layoutConfig.styleOverrides?.tocTitle, AlignmentType.CENTER),
       spacing: {
         before: 200,
         after: 240,
       },
       children: [
-        new TextRun({
+        buildStyledRun({
           text: "目  录",
-          font: "SimHei",
+          override: layoutConfig.styleOverrides?.tocTitle,
+          defaultFont: layoutConfig.titleFontFamily || "SimHei",
+          defaultSizePt: 15,
           bold: true,
-          size: ptToHalfPoint(15),
         }),
       ],
     }),
@@ -813,14 +870,23 @@ function buildArtifactNodes(
 
 function buildBodyChildren(paperDocument: ReturnType<typeof normalizePaperDocument>) {
   const children: Array<Paragraph | Table> = [];
-  const { layoutConfig } = paperDocument;
+  const layoutConfig = paperDocument.layoutConfig;
+  const styleOverrides = layoutConfig.styleOverrides;
 
   paperDocument.bodySections.forEach((section, index) => {
     const sectionTitle =
       section.numbering && !isPreNumberedHeading(section.heading)
         ? `${section.numbering} ${section.heading}`
         : section.heading;
-    children.push(createHeading(sectionTitle, section.level, layoutConfig));
+    const headingOverride =
+      section.level === 1
+        ? styleOverrides?.heading1
+        : section.level === 2
+          ? styleOverrides?.heading2
+          : styleOverrides?.heading3;
+    children.push(
+      createHeading(sectionTitle, section.level, layoutConfig, headingOverride)
+    );
     children.push(...buildMarkdownBlocks(section.markdown, layoutConfig));
 
     const chapterNumber =
@@ -839,6 +905,8 @@ function buildReferenceChildren(
   references: Source[],
   layoutConfig: PaperLayoutConfig = createDefaultPaperLayoutConfig()
 ) {
+  const referenceItemOverride = layoutConfig.styleOverrides?.referenceItem;
+
   if (references.length === 0) {
     return [
       createBodyParagraph(
@@ -861,9 +929,12 @@ function buildReferenceChildren(
         },
         style: "ListParagraph",
         children: [
-          createRun(`[${index + 1}] ${item.title || "未命名文献"} `, {
-            font: layoutConfig.bodyFontFamily || "SimSun",
-            size: ptToHalfPoint(layoutConfig.bodyFontSize || 12),
+          buildStyledRun({
+            text: `[${index + 1}] ${item.title || "未命名文献"} `,
+            override: referenceItemOverride,
+            defaultFont: layoutConfig.bodyFontFamily || "SimSun",
+            defaultSizePt: layoutConfig.bodyFontSize || 12,
+            bold: referenceItemOverride?.bold ?? false,
           }),
           new ExternalHyperlink({
             link: item.url,
@@ -890,8 +961,16 @@ export async function buildTemplateThesisDocxBuffer(input: PaperDocument) {
   });
   const { templateMeta } = paperDocument;
   const title = paperDocument.title || "论文题目";
-  const frontMatterMargins = paperDocument.layoutConfig.pageMargins;
-  const bodyMargins = paperDocument.layoutConfig.pageMargins;
+  const layoutConfig = paperDocument.layoutConfig;
+  const frontMatterMargins = layoutConfig.pageMargins;
+  const bodyMargins = layoutConfig.pageMargins;
+  const frontMatterNumberFormat =
+    layoutConfig.frontMatterPageNumberStyle === "roman"
+      ? NumberFormat.UPPER_ROMAN
+      : NumberFormat.DECIMAL;
+  const frontMatterStartPage =
+    layoutConfig.templatePageRule?.pageNumberStart ?? 1;
+  const bodyNumberFormat = NumberFormat.DECIMAL;
 
   const document = new Document({
     sections: [
@@ -905,11 +984,11 @@ export async function buildTemplateThesisDocxBuffer(input: PaperDocument) {
       },
       {
         properties: createSectionProperties(frontMatterMargins, {
-          startPage: 1,
-          numberFormat: NumberFormat.UPPER_ROMAN,
+          startPage: frontMatterStartPage,
+          numberFormat: frontMatterNumberFormat,
         }),
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
         children: createAbstractSectionChildren(
           title,
@@ -918,24 +997,24 @@ export async function buildTemplateThesisDocxBuffer(input: PaperDocument) {
           paperDocument.abstractZh,
           "关键词",
           paperDocument.keywordsZh,
-          paperDocument.layoutConfig
+          layoutConfig
         ),
       },
       {
         properties: createSectionProperties(frontMatterMargins, {
-          numberFormat: NumberFormat.UPPER_ROMAN,
+          numberFormat: frontMatterNumberFormat,
         }),
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
         children: createAuthorizationChildren(templateMeta),
       },
       {
         properties: createSectionProperties(frontMatterMargins, {
-          numberFormat: NumberFormat.UPPER_ROMAN,
+          numberFormat: frontMatterNumberFormat,
         }),
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
         children: createAbstractSectionChildren(
           title,
@@ -944,92 +1023,95 @@ export async function buildTemplateThesisDocxBuffer(input: PaperDocument) {
           paperDocument.abstractEn,
           "Keywords",
           paperDocument.keywordsEn,
-          paperDocument.layoutConfig
+          layoutConfig
         ),
       },
       {
         properties: createSectionProperties(frontMatterMargins, {
-          numberFormat: NumberFormat.UPPER_ROMAN,
+          numberFormat: frontMatterNumberFormat,
         }),
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
-        children: createTocChildren(),
+        children: createTocChildren(layoutConfig),
       },
       {
         properties: createSectionProperties(bodyMargins, {
           startPage: 1,
-          numberFormat: NumberFormat.DECIMAL,
+          numberFormat: bodyNumberFormat,
         }),
         headers: {
-          default: createBodyHeader("毕业论文", paperDocument.layoutConfig),
+          default: createBodyHeader("毕业论文", layoutConfig),
         },
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
         children: buildBodyChildren(paperDocument),
       },
       {
         properties: createSectionProperties(bodyMargins, {
-          numberFormat: NumberFormat.DECIMAL,
+          numberFormat: bodyNumberFormat,
         }),
         headers: {
-          default: createBodyHeader("毕业论文", paperDocument.layoutConfig),
+          default: createBodyHeader("毕业论文", layoutConfig),
         },
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
         children: [
-          createHeading("参考文献", 1, paperDocument.layoutConfig),
-          ...buildReferenceChildren(
-            paperDocument.references,
-            paperDocument.layoutConfig
+          createHeading(
+            "参考文献",
+            1,
+            layoutConfig,
+            layoutConfig.styleOverrides?.referenceTitle
           ),
+          ...buildReferenceChildren(paperDocument.references, layoutConfig),
         ],
       },
       {
         properties: createSectionProperties(bodyMargins, {
-          numberFormat: NumberFormat.DECIMAL,
+          numberFormat: bodyNumberFormat,
         }),
         headers: {
-          default: createBodyHeader("毕业论文", paperDocument.layoutConfig),
+          default: createBodyHeader("毕业论文", layoutConfig),
         },
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
         children: [
-          createHeading("致谢", 1, paperDocument.layoutConfig),
+          createHeading("致谢", 1, layoutConfig),
           createBodyParagraph(
             stripMarkdown(templateMeta.acknowledgements),
             undefined,
-            paperDocument.layoutConfig
+            layoutConfig
           ),
         ],
       },
       {
         properties: createSectionProperties(bodyMargins, {
-          numberFormat: NumberFormat.DECIMAL,
+          numberFormat: bodyNumberFormat,
         }),
         headers: {
-          default: createBodyHeader("毕业论文", paperDocument.layoutConfig),
+          default: createBodyHeader("毕业论文", layoutConfig),
         },
         footers: {
-          default: createBodyFooter(paperDocument.layoutConfig),
+          default: createBodyFooter(layoutConfig),
         },
         children:
           paperDocument.appendixSections.length > 0
             ? paperDocument.appendixSections.flatMap((section) => [
-                createHeading(section.heading, 1, paperDocument.layoutConfig),
-                ...buildMarkdownBlocks(
-                  section.markdown,
-                  paperDocument.layoutConfig
-                ),
+                createHeading(section.heading, 1, layoutConfig),
+                ...buildMarkdownBlocks(section.markdown, layoutConfig),
               ])
             : [
-                createHeading("附录", 1, paperDocument.layoutConfig),
-                createBodyParagraph("暂无附录内容。", {
-                  firstLineIndent: false,
-                }, paperDocument.layoutConfig),
+                createHeading("附录", 1, layoutConfig),
+                createBodyParagraph(
+                  "暂无附录内容。",
+                  {
+                    firstLineIndent: false,
+                  },
+                  layoutConfig
+                ),
               ],
       },
     ],

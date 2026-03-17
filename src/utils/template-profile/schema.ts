@@ -74,6 +74,71 @@ export const templatePageRuleSchema = z.object({
   hasDifferentFirstPage: z.boolean(),
   pageNumberStart: z.number().int().positive().optional(),
   pageNumberFormat: z.enum(["decimal", "roman"]).optional(),
+  headerTextLeft: z.string().optional(),
+  headerTextRight: z.string().optional(),
+  footerText: z.string().optional(),
+  pageNumberPosition: z.enum(["left", "center", "right"]).optional(),
+});
+
+const templateMarginsSchema = templatePageRuleSchema.shape.marginsCm;
+
+export const templateLayoutSchema = z.object({
+  paperSize: z.literal("A4"),
+  marginsCm: templateMarginsSchema,
+});
+
+export const templatePreviewAnchorSchema = z.object({
+  key: templateFieldAnchorSchema.shape.key,
+  label: z.string(),
+  confidence: z.number().min(0).max(1),
+});
+
+export const templatePreviewSnapshotSchema = z.object({
+  pageNumber: z.number().int().positive(),
+  sectionKey: templateSectionProfileSchema.shape.key,
+  label: z.string(),
+  summary: z.string(),
+  coverage: z.number().min(0).max(1),
+  layout: templateLayoutSchema,
+  anchorHighlights: z.array(templatePreviewAnchorSchema).optional(),
+});
+
+export const templateValidationHighlightSchema = z.object({
+  heading: z.string(),
+  snippet: z.string(),
+});
+
+export const templateValidationDetailSchema = z.object({
+  formatSpecId: z.string(),
+  formatSpecName: z.string().optional(),
+  differences: z.array(
+    z.object({
+      key: z.string(),
+      expected: z.string(),
+      actual: z.string().optional(),
+      message: z.string(),
+    })
+  ),
+  suggestions: z.array(
+    z.object({
+      target: z.string(),
+      message: z.string(),
+    })
+  ),
+});
+
+export const templateValidationPreviewSchema = z.object({
+  layout: templateLayoutSchema,
+  highlights: z.array(templateValidationHighlightSchema),
+  sectionCount: z.number().int().nonnegative(),
+  artifactCount: z.number().int().nonnegative(),
+  keyPages: z.array(templatePreviewSnapshotSchema).optional(),
+  anchorCoverage: z
+    .object({
+      total: z.number().int().nonnegative(),
+      captured: z.number().int().nonnegative(),
+    })
+    .optional(),
 });
 
 export const templateConfirmationItemSchema = z.object({
@@ -98,6 +163,8 @@ export const templateValidationIssueSchema = z.object({
 export const templateValidationResultSchema = z.object({
   canExport: z.boolean(),
   issues: z.array(templateValidationIssueSchema),
+  preview: templateValidationPreviewSchema.optional(),
+  detail: templateValidationDetailSchema.optional(),
 });
 
 export const templateProfileSchema = z.object({

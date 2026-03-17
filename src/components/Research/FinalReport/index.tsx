@@ -95,6 +95,7 @@ function FinalReport() {
   const templateProfiles = useTemplateStore((state) => state.profiles);
   const formatSpecs = useTemplateStore((state) => state.formatSpecs);
   const selectedTemplateId = useTemplateStore((state) => state.selectedTemplateId);
+  const hydrateTemplateLibrary = useTemplateStore((state) => state.hydrateLibrary);
   const latestTemplateValidation = useTemplateStore(
     (state) => state.latestValidation
   );
@@ -139,6 +140,59 @@ function FinalReport() {
       ),
     [selectedTemplateProfile, taskStore.paperDocument]
   );
+
+  const persistTemplateProfile = useCallback(async (profile: TemplateProfile) => {
+    const response = await fetch("/api/template/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(profile),
+    });
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok || !payload?.ok) {
+      throw new Error(payload?.error?.message || "模板保存失败");
+    }
+
+    return payload.data as TemplateProfile;
+  }, []);
+
+  const fetchTemplateDetail = useCallback(
+    async (templateId: string) => {
+      const cachedProfile = useTemplateStore.getState().profiles[templateId];
+      if (cachedProfile) {
+        return cachedProfile;
+      }
+
+      const response = await fetch(
+        `/api/template/detail/${encodeURIComponent(templateId)}`
+      );
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error?.message || "模板详情加载失败");
+      }
+
+      const profile = payload.data as TemplateProfile;
+      saveTemplateProfile(profile);
+      return profile;
+    },
+    [saveTemplateProfile]
+  );
+
+  const loadTemplateLibrary = useCallback(async () => {
+    const response = await fetch("/api/template/list");
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok || !payload?.ok) {
+      throw new Error(payload?.error?.message || "模板库加载失败");
+    }
+
+    const items = (payload.data?.items || []) as TemplateLibraryItem[];
+    hydrateTemplateLibrary(items);
+    return items;
+  }, [hydrateTemplateLibrary]);
 
   const runTemplateValidation = useCallback(
     async (profile = selectedTemplateProfile) => {
@@ -190,12 +244,13 @@ function FinalReport() {
         throw new Error(payload?.error?.message || "模板识别失败");
       }
 
-      const profile = payload.data.profile as TemplateProfile;
-      saveTemplateProfile(profile);
-      await runTemplateValidation(profile);
+      const identifiedProfile = payload.data.profile as TemplateProfile;
+      const savedProfile = await persistTemplateProfile(identifiedProfile);
+      saveTemplateProfile(savedProfile);
+      await runTemplateValidation(savedProfile);
       toast.success(
-        `模板识别完成：${profile.name}（置信度 ${Math.round(
-          profile.confidenceScore * 100
+        `模板识别完成：${savedProfile.name}（置信度 ${Math.round(
+          savedProfile.confidenceScore * 100
         )}%）`
       );
       setOpenTemplateLibraryDialog(false);
@@ -208,7 +263,7 @@ function FinalReport() {
 
   async function handleSelectTemplate(templateId: string) {
     selectTemplate(templateId);
-    const profile = templateProfiles[templateId];
+    const profile = await fetchTemplateDetail(templateId);
     if (!profile) return;
     await runTemplateValidation(profile);
     setOpenTemplateLibraryDialog(false);
@@ -222,6 +277,7 @@ function FinalReport() {
     resolveConfirmationItem(selectedTemplateId, itemId, resolution);
     const nextProfile = useTemplateStore.getState().profiles[selectedTemplateId];
     if (nextProfile) {
+      await persistTemplateProfile(nextProfile);
       await runTemplateValidation(nextProfile);
     }
   }
@@ -414,6 +470,22 @@ function FinalReport() {
   useEffect(() => {
     form.setValue("requirement", taskStore.requirement);
   }, [taskStore.requirement, form]);
+
+  useEffect(() => {
+    void loadTemplateLibrary().catch((error) => {
+      toast.error(error instanceof Error ? error.message : "模板库加载失败");
+    });
+  }, [loadTemplateLibrary]);
+
+  useEffect(() => {
+    if (!selectedTemplateId || selectedTemplateProfile) {
+      return;
+    }
+
+    void fetchTemplateDetail(selectedTemplateId).catch((error) => {
+      toast.error(error instanceof Error ? error.message : "模板详情加载失败");
+    });
+  }, [fetchTemplateDetail, selectedTemplateId, selectedTemplateProfile]);
 
   useEffect(() => {
     if (!selectedTemplateProfile) {
