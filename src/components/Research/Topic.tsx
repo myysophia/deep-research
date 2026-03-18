@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LoaderCircle,
@@ -16,6 +16,7 @@ import ResourceList from "@/components/Knowledge/ResourceList";
 import Crawler from "@/components/Knowledge/Crawler";
 import { Button } from "@/components/Internal/Button";
 import { Form, FormField } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
@@ -32,13 +33,21 @@ import { useGlobalStore } from "@/store/global";
 import { useSettingStore } from "@/store/setting";
 import { useTaskStore } from "@/store/task";
 import { useHistoryStore } from "@/store/history";
+import {
+  DEFAULT_THESIS_QUICK_PROMPT_ID,
+  formatThesisQuickPrompt,
+  type ThesisQuickPromptId,
+} from "@/constants/thesis-quick-prompts";
 
 const formSchema = z.object({
-  topic: z.string().min(2),
+  title: z.string().trim().min(2),
+  topic: z.string().trim().min(2),
+  templateId: z.enum(["general-academic", "undergraduate", "master"]),
 });
 
 const TOPIC_FIELD_ID = "research-topic-field";
 const RESOURCE_TRIGGER_ID = "knowledge-resource-trigger";
+const DEFAULT_TEMPLATE_ID = DEFAULT_THESIS_QUICK_PROMPT_ID;
 
 function Topic() {
   const { t } = useTranslation();
@@ -58,35 +67,48 @@ function Topic() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      title: "",
       topic: taskStore.question,
+      templateId: DEFAULT_TEMPLATE_ID,
     },
   });
-  const topicPresets: Array<{ id: string; label: string; value: string }> = [
+  const topicPresets: Array<{ id: ThesisQuickPromptId; label: string }> = [
     {
-      id: "market",
-      label: t("research.topic.presets.marketLabel"),
-      value: t("research.topic.presets.marketPrompt"),
+      id: "general-academic",
+      label: t("research.topic.presets.generalAcademicLabel"),
     },
     {
-      id: "technical",
-      label: t("research.topic.presets.technicalLabel"),
-      value: t("research.topic.presets.technicalPrompt"),
+      id: "undergraduate",
+      label: t("research.topic.presets.undergraduateLabel"),
     },
     {
-      id: "comparison",
-      label: t("research.topic.presets.comparisonLabel"),
-      value: t("research.topic.presets.comparisonPrompt"),
+      id: "master",
+      label: t("research.topic.presets.masterLabel"),
     },
   ];
   const handleTopicSubmitShortcut = useSubmitShortcut(() => {
     void form.handleSubmit(handleSubmit)();
   });
+  const selectedTemplateId = form.watch("templateId");
+  const titleValue = form.watch("title");
+  const topicValue = form.watch("topic");
 
-  function applyTopicPreset(value: string): void {
-    form.setValue("topic", value, {
+  function selectTopicPreset(templateId: ThesisQuickPromptId): void {
+    const title = form.getValues("title").trim();
+    const nextPrompt = formatThesisQuickPrompt(title, templateId);
+
+    form.setValue("templateId", templateId, {
       shouldDirty: true,
       shouldTouch: true,
+      shouldValidate: true,
     });
+    if (title.length >= 2) {
+      form.setValue("topic", nextPrompt, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
   }
 
   function handleCheck(): boolean {
@@ -103,14 +125,21 @@ function Topic() {
   async function handleSubmit(values: z.infer<typeof formSchema>) {
     if (handleCheck()) {
       const { id, setQuestion } = useTaskStore.getState();
+      const finalPrompt = formatThesisQuickPrompt(
+        values.title,
+        values.templateId
+      );
+      const promptContent = values.topic.trim() || finalPrompt;
       try {
         setIsThinking(true);
         accurateTimerStart();
         if (id !== "") {
           createNewResearch();
-          form.setValue("topic", values.topic);
+          form.setValue("title", values.title);
+          form.setValue("topic", promptContent);
+          form.setValue("templateId", values.templateId);
         }
-        setQuestion(values.topic);
+        setQuestion(promptContent);
         await askQuestions();
       } finally {
         setIsThinking(false);
@@ -124,7 +153,11 @@ function Topic() {
     const { update } = useHistoryStore.getState();
     if (id) update(id, backup());
     reset();
-    form.reset();
+    form.reset({
+      title: "",
+      topic: "",
+      templateId: DEFAULT_TEMPLATE_ID,
+    });
   }
 
   function openKnowledgeList() {
@@ -145,8 +178,10 @@ function Topic() {
   }
 
   useEffect(() => {
-    form.setValue("topic", taskStore.question);
-  }, [taskStore.question, form]);
+    if (taskStore.question && taskStore.question !== form.getValues("topic")) {
+      form.setValue("topic", taskStore.question);
+    }
+  }, [form, taskStore.question]);
 
   return (
     <section className="p-4 border rounded-md mt-4 print:hidden">
@@ -169,7 +204,7 @@ function Topic() {
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <FormField
             control={form.control}
-            name="topic"
+            name="title"
             render={({ field }) => (
               <div className="space-y-2">
                 <label
@@ -178,9 +213,8 @@ function Topic() {
                 >
                   {t("research.topic.topicLabel")}
                 </label>
-                <Textarea
+                <Input
                   id={TOPIC_FIELD_ID}
-                  rows={3}
                   placeholder={t("research.topic.topicPlaceholder")}
                   onKeyDown={handleTopicSubmitShortcut}
                   {...field}
@@ -188,24 +222,43 @@ function Topic() {
                 <p className="text-xs text-muted-foreground">
                   {t("research.common.submitShortcut")}
                 </p>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    {t("research.topic.presetsLabel")}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {topicPresets.map((preset) => (
-                      <Button
-                        key={preset.id}
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => applyTopicPreset(preset.value)}
-                      >
-                        {preset.label}
-                      </Button>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {topicPresets.map((preset) => (
+                    <Button
+                      key={preset.id}
+                      type="button"
+                      size="sm"
+                      variant={
+                        selectedTemplateId === preset.id ? "default" : "outline"
+                      }
+                      disabled={titleValue.trim().length < 2}
+                      onClick={() => selectTopicPreset(preset.id)}
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
                 </div>
+              </div>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="topic"
+            render={({ field }) => (
+              <div className="mt-4 space-y-2">
+                <label
+                  className="mb-2 block text-base font-semibold"
+                  htmlFor="research-topic-prompt-field"
+                >
+                  {t("research.topic.promptLabel")}
+                </label>
+                <Textarea
+                  id="research-topic-prompt-field"
+                  rows={10}
+                  placeholder={t("research.topic.promptPlaceholder")}
+                  onKeyDown={handleTopicSubmitShortcut}
+                  {...field}
+                />
               </div>
             )}
           />
@@ -258,7 +311,11 @@ function Topic() {
               </DropdownMenu>
             </div>
           </div>
-          <Button className="w-full mt-4" disabled={isThinking} type="submit">
+          <Button
+            className="w-full mt-4"
+            disabled={isThinking || topicValue.trim().length < 2}
+            type="submit"
+          >
             {isThinking ? (
               <>
                 <LoaderCircle className="animate-spin" />

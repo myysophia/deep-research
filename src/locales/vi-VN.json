@@ -51,17 +51,17 @@
       "submitShortcut": "Phím tắt: Ctrl/Cmd + Enter"
     },
     "topic": {
-      "title": "1. Chủ Đề Nghiên Cứu",
-      "topicLabel": "1.1 Chủ đề nghiên cứu",
-      "topicPlaceholder": "Bất kỳ câu hỏi nào bạn muốn biết...",
-      "presetsLabel": "Mẫu nhanh",
+      "title": "1. Bắt đầu luận văn nhanh",
+      "topicLabel": "1.1 Tên đề tài luận văn",
+      "topicPlaceholder": "Nhập tên đề tài luận văn",
+      "presetsLabel": "Mẫu khung bài viết",
+      "presetsTip": "Nhập tên đề tài rồi bấm một mẫu để điền đầy đủ prompt vào ô nội dung như cách cũ.",
+      "promptLabel": "Nội dung khung bài viết",
+      "promptPlaceholder": "Sau khi nhập tên đề tài, bấm một mẫu để hệ thống tự điền prompt đầy đủ vào đây.",
       "presets": {
-        "marketLabel": "Bản đồ thị trường",
-        "marketPrompt": "Phân tích bức tranh thị trường hiện tại cho [chủ đề của bạn]. So sánh các nhà cung cấp lớn, mô hình giá, xu hướng thị phần và rủi ro chính trong 12 tháng tới.",
-        "technicalLabel": "Phân tích kỹ thuật",
-        "technicalPrompt": "Thực hiện phân tích kỹ thuật chuyên sâu về [chủ đề của bạn]. Trình bày các lựa chọn kiến trúc, đánh đổi triển khai, giới hạn hiệu năng và chiến lược rollout đề xuất.",
-        "comparisonLabel": "So sánh phương án",
-        "comparisonPrompt": "So sánh các giải pháp hàng đầu cho [chủ đề của bạn]. Tạo ma trận quyết định bao gồm tính năng, chi phí, độ khó tích hợp, bảo mật/tuân thủ và khả năng bảo trì dài hạn."
+        "generalAcademicLabel": "Khung học thuật tổng quát",
+        "undergraduateLabel": "Khung luận văn đại học",
+        "masterLabel": "Khung luận văn thạc sĩ"
       }
     },
     "feedback": {

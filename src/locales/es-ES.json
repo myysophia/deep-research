@@ -51,17 +51,17 @@
       "submitShortcut": "Atajo: Ctrl/Cmd + Enter"
     },
     "topic": {
-      "title": "1. Definición de la investigación",
-      "topicLabel": "1.1 Temas de investigación",
-      "topicPlaceholder": "Detalla el tema o temas de la investigación...",
-      "presetsLabel": "Plantillas rápidas",
+      "title": "1. Inicio rápido de tesis",
+      "topicLabel": "1.1 Título de la tesis",
+      "topicPlaceholder": "Introduce el título de la tesis",
+      "presetsLabel": "Plantillas de estructura",
+      "presetsTip": "Introduce el título y haz clic en una plantilla para rellenar aquí el prompt completo.",
+      "promptLabel": "Contenido de la estructura",
+      "promptPlaceholder": "Después de introducir el título, pulsa una plantilla y aquí se completará el prompt de redacción.",
       "presets": {
-        "marketLabel": "Mapa de mercado",
-        "marketPrompt": "Mapea el panorama actual del mercado para [tu tema]. Compara proveedores principales, modelos de precios, tendencias de cuota y riesgos clave para los próximos 12 meses.",
-        "technicalLabel": "Análisis técnico",
-        "technicalPrompt": "Realiza un análisis técnico profundo sobre [tu tema]. Explica opciones de arquitectura, trade-offs de implementación, límites de rendimiento y estrategia de despliegue recomendada.",
-        "comparisonLabel": "Comparar opciones",
-        "comparisonPrompt": "Compara las principales soluciones para [tu tema]. Crea una matriz de decisión que cubra funcionalidades, costo, esfuerzo de integración, seguridad/cumplimiento y mantenibilidad a largo plazo."
+        "generalAcademicLabel": "Marco académico general",
+        "undergraduateLabel": "Marco de tesis de grado",
+        "masterLabel": "Marco de tesis de maestría"
       }
     },
     "feedback": {

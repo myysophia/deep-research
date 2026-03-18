@@ -51,17 +51,17 @@
       "submitShortcut": "Shortcut: Ctrl/Cmd + Enter"
     },
     "topic": {
-      "title": "1. Research Topics",
-      "topicLabel": "1.1 Research topics",
-      "topicPlaceholder": "Any questions you want to know...",
-      "presetsLabel": "Quick start templates",
+      "title": "1. Thesis Quick Start",
+      "topicLabel": "1.1 Thesis Title",
+      "topicPlaceholder": "Enter your thesis title",
+      "presetsLabel": "Writing Framework Templates",
+      "presetsTip": "Enter a thesis title, then click a template button to fill the full prompt directly into the editor.",
+      "promptLabel": "Framework Content",
+      "promptPlaceholder": "After entering a thesis title, click a template button and the full writing prompt will be filled here.",
       "presets": {
-        "marketLabel": "Market map",
-        "marketPrompt": "Map the current market landscape for [your topic]. Compare major vendors, pricing models, market share trends, and key risks over the next 12 months.",
-        "technicalLabel": "Technical deep dive",
-        "technicalPrompt": "Perform a technical deep dive on [your topic]. Explain architecture options, implementation tradeoffs, performance constraints, and recommended rollout strategy.",
-        "comparisonLabel": "Compare options",
-        "comparisonPrompt": "Compare the top solutions for [your topic]. Build a decision matrix covering features, cost, integration effort, security/compliance, and long-term maintainability."
+        "generalAcademicLabel": "General Academic Framework",
+        "undergraduateLabel": "Undergraduate Thesis Framework",
+        "masterLabel": "Master's Thesis Framework"
       }
     },
     "feedback": {

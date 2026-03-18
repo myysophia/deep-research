@@ -51,17 +51,17 @@
       "submitShortcut": "快捷键：Ctrl/Cmd + Enter"
     },
     "topic": {
-      "title": "1. 研究方向",
-      "topicLabel": "1.1 研究主题",
-      "topicPlaceholder": "任何您想了解的问题...",
-      "presetsLabel": "快速模板",
+      "title": "1. 论文快速开始",
+      "topicLabel": "1.1 论文题目",
+      "topicPlaceholder": "请输入论文题目，例如：新媒体环境下高校品牌传播策略研究",
+      "presetsLabel": "论文框架模板",
+      "presetsTip": "先输入论文题目，再点击一个模板按钮，系统会像之前的快速模板一样直接填充完整内容。",
+      "promptLabel": "论文框架内容",
+      "promptPlaceholder": "输入论文题目后，点击上方模板按钮，这里会自动填充完整写作指令。你也可以继续手动修改。",
       "presets": {
-        "marketLabel": "市场全景",
-        "marketPrompt": "梳理 [你的主题] 的当前市场格局。对比主要厂商、定价模式、市场份额趋势，并评估未来 12 个月的关键风险。",
-        "technicalLabel": "技术深度分析",
-        "technicalPrompt": "对 [你的主题] 做技术深度分析。说明架构方案、实现权衡、性能约束，以及推荐的落地路线。",
-        "comparisonLabel": "方案对比",
-        "comparisonPrompt": "对比 [你的主题] 的主流方案。构建决策矩阵，覆盖功能、成本、集成难度、安全合规和长期可维护性。"
+        "generalAcademicLabel": "学术写作通用框架",
+        "undergraduateLabel": "本科毕业论文框架",
+        "masterLabel": "硕士论文研究框架"
       }
     },
     "feedback": {
