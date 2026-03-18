@@ -35,8 +35,15 @@ type SectionMargins = {
   left: number;
 };
 
+const A4_PAGE_WIDTH_CM = 21;
+const A4_PAGE_HEIGHT_CM = 29.7;
+
 function cmToTwip(value: number) {
   return Math.round(value * 567);
+}
+
+function cmToPx(value: number) {
+  return Math.round((value / 2.54) * 96);
 }
 
 function ptToHalfPoint(value: number) {
@@ -45,6 +52,96 @@ function ptToHalfPoint(value: number) {
 
 function lineSpacingToTwip(lineSpacing = 20) {
   return Math.round(lineSpacing * 20);
+}
+
+function getSvgDimensionValue(rawValue?: string | null) {
+  if (!rawValue) return undefined;
+  const matched = /([\d.]+)/.exec(rawValue);
+  if (!matched) return undefined;
+  const value = Number(matched[1]);
+  return Number.isFinite(value) && value > 0 ? value : undefined;
+}
+
+function getArtifactSvgSize(svg?: string) {
+  if (!svg) {
+    return { width: 1200, height: 720 };
+  }
+
+  const svgTagMatch = /<svg\b[^>]*>/i.exec(svg);
+  const svgTag = svgTagMatch?.[0] || "";
+  const widthAttr =
+    /\bwidth="([^"]+)"/i.exec(svgTag)?.[1] ||
+    /\bwidth='([^']+)'/i.exec(svgTag)?.[1];
+  const heightAttr =
+    /\bheight="([^"]+)"/i.exec(svgTag)?.[1] ||
+    /\bheight='([^']+)'/i.exec(svgTag)?.[1];
+  const viewBoxValue =
+    /\bviewBox="([^"]+)"/i.exec(svgTag)?.[1] ||
+    /\bviewBox='([^']+)'/i.exec(svgTag)?.[1];
+
+  const width = getSvgDimensionValue(widthAttr);
+  const height = getSvgDimensionValue(heightAttr);
+  const viewBoxParts = viewBoxValue
+    ?.trim()
+    .split(/[\s,]+/)
+    .map((item) => Number(item));
+  const viewBoxWidth =
+    viewBoxParts && viewBoxParts.length === 4 && Number.isFinite(viewBoxParts[2])
+      ? viewBoxParts[2]
+      : undefined;
+  const viewBoxHeight =
+    viewBoxParts && viewBoxParts.length === 4 && Number.isFinite(viewBoxParts[3])
+      ? viewBoxParts[3]
+      : undefined;
+
+  return {
+    width: Math.max(120, Math.round(width || viewBoxWidth || 1200)),
+    height: Math.max(120, Math.round(height || viewBoxHeight || 720)),
+  };
+}
+
+function getArtifactImageTransformation(
+  artifact: PaperArtifact,
+  layoutConfig: PaperLayoutConfig
+) {
+  const { width: rawWidth, height: rawHeight } = getArtifactSvgSize(
+    artifact.renderedSvg
+  );
+  const usableWidthCm = Math.max(
+    6,
+    A4_PAGE_WIDTH_CM -
+      (layoutConfig.pageMargins.left || 0) -
+      (layoutConfig.pageMargins.right || 0)
+  );
+  const usableHeightCm = Math.max(
+    8,
+    A4_PAGE_HEIGHT_CM -
+      (layoutConfig.pageMargins.top || 0) -
+      (layoutConfig.pageMargins.bottom || 0) -
+      4
+  );
+  const maxWidth = cmToPx(usableWidthCm);
+  const maxHeight = cmToPx(usableHeightCm);
+  const scale = Math.min(maxWidth / rawWidth, maxHeight / rawHeight, 1);
+  let width = Math.round(rawWidth * scale);
+  let height = Math.round(rawHeight * scale);
+
+  if (width < 220) {
+    const nextScale = 220 / width;
+    width = 220;
+    height = Math.round(height * nextScale);
+  }
+
+  if (height < 220) {
+    const nextScale = 220 / height;
+    height = 220;
+    width = Math.round(width * nextScale);
+  }
+
+  return {
+    width: Math.min(width, maxWidth),
+    height: Math.min(height, maxHeight),
+  };
 }
 
 function isPreNumberedHeading(text: string) {
@@ -387,6 +484,25 @@ function stripMarkdown(text: string) {
     .trim();
 }
 
+function normalizeHeadingText(text: string) {
+  return text.replace(/\s+/g, "").trim().toLowerCase();
+}
+
+function isChineseAbstractHeading(heading: string) {
+  const normalized = normalizeHeadingText(heading);
+  return ["摘要", "中文摘要", "内容摘要", "摘:要", "摘：要"].includes(normalized);
+}
+
+function isEnglishAbstractHeading(heading: string) {
+  const normalized = normalizeHeadingText(heading);
+  return [
+    "abstract",
+    "englishabstract",
+    "英文摘要",
+    "英文abstract",
+  ].includes(normalized);
+}
+
 function normalizeArtifactTitle(title: string, type: "table" | "mermaid") {
   const cleaned = title
     .replace(/^(表|图)\s*\d+([-.－—]\d+)?\s*/u, "")
@@ -560,13 +676,15 @@ function normalizePaperDocument(paperDocument: PaperDocument) {
 
   const abstractZh =
     paperDocument.abstractZh ||
-    paperDocument.sections.find((section) => section.heading.trim() === "摘要")
+    paperDocument.sections.find((section) =>
+      isChineseAbstractHeading(section.heading)
+    )
       ?.markdown ||
     "";
   const abstractEn =
     paperDocument.abstractEn ||
-    paperDocument.sections.find(
-      (section) => section.heading.trim().toLowerCase() === "abstract"
+    paperDocument.sections.find((section) =>
+      isEnglishAbstractHeading(section.heading)
     )?.markdown ||
     "";
 
@@ -927,6 +1045,10 @@ function buildArtifactNodes(
     artifact.type
   )}`;
   const nodes: Array<Paragraph | Table> = [];
+  const imageTransformation = getArtifactImageTransformation(
+    artifact,
+    layoutConfig
+  );
 
   if (artifact.type === "table") {
     nodes.push(createCaption(caption, "table"));
@@ -949,7 +1071,29 @@ function buildArtifactNodes(
       nodes.push(buildThreeLineTable(rows));
     }
   } else {
-    if (artifact.renderedSvg) {
+    if (artifact.renderedPngBase64) {
+      try {
+        nodes.push(
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new ImageRun({
+                type: "png",
+                data: Buffer.from(artifact.renderedPngBase64, "base64"),
+                transformation: imageTransformation,
+              }),
+            ],
+          })
+        );
+      } catch {
+        nodes.push(
+          ...buildMarkdownBlocks(
+            ["```mermaid", artifact.content, "```"].join("\n"),
+            layoutConfig
+          )
+        );
+      }
+    } else if (artifact.renderedSvg) {
       try {
         nodes.push(
           new Paragraph({
@@ -962,10 +1106,7 @@ function buildArtifactNodes(
                   type: "png",
                   data: Buffer.from(TRANSPARENT_PNG_BASE64, "base64"),
                 },
-                transformation: {
-                  width: 520,
-                  height: 280,
-                },
+                transformation: imageTransformation,
               }),
             ],
           })

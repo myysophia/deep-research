@@ -322,6 +322,32 @@ function buildArtifactNodes(
     if (rows.length > 0) {
       nodes.push(markdownTableToDocx(rows, layoutConfig));
     }
+  } else if (artifact.renderedPngBase64) {
+    try {
+      const pngBuffer = Buffer.from(artifact.renderedPngBase64, "base64");
+      nodes.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new ImageRun({
+              type: "png",
+              data: pngBuffer,
+              transformation: {
+                width: 520,
+                height: 280,
+              },
+            }),
+          ],
+        })
+      );
+    } catch {
+      nodes.push(
+        ...markdownToParagraphChildren(
+          ["```mermaid", artifact.content, "```"].join("\n"),
+          layoutConfig
+        )
+      );
+    }
   } else if (artifact.renderedSvg) {
     try {
       const svgBuffer = Buffer.from(artifact.renderedSvg, "utf-8");

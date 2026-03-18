@@ -112,6 +112,7 @@ interface PaperArtifact {
   isSyntheticData: boolean;
   note?: string;
   renderedSvg?: string;
+  renderedPngBase64?: string;
 }
 
 interface ThesisTemplateMeta {

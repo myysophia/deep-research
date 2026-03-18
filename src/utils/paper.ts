@@ -23,6 +23,35 @@ function stripMarkdown(text: string) {
     .trim();
 }
 
+function normalizeHeadingText(text: string) {
+  return text.replace(/\s+/g, "").trim().toLowerCase();
+}
+
+function isChineseAbstractHeading(heading: string) {
+  const normalized = normalizeHeadingText(heading);
+  return ["摘要", "中文摘要", "内容摘要", "摘:要", "摘：要"].includes(normalized);
+}
+
+function isEnglishAbstractHeading(heading: string) {
+  const normalized = normalizeHeadingText(heading);
+  return [
+    "abstract",
+    "englishabstract",
+    "英文摘要",
+    "英文abstract",
+  ].includes(normalized);
+}
+
+function isChineseKeywordHeading(heading: string) {
+  const normalized = normalizeHeadingText(heading);
+  return ["关键词", "关键字"].includes(normalized);
+}
+
+function isEnglishKeywordHeading(heading: string) {
+  const normalized = normalizeHeadingText(heading);
+  return ["keywords", "keyword"].includes(normalized);
+}
+
 function isNonNumberedHeading(heading: string) {
   const normalized = heading.trim().toLowerCase();
   return NON_NUMBERED_HEADINGS.some((item) => normalized.startsWith(item));
@@ -311,17 +340,17 @@ export function derivePaperDocument(params: {
   let keywordsEn: string[] = [];
 
   sections.forEach((section) => {
-    const heading = section.heading.toLowerCase();
-    if (heading === "摘要") {
+    const heading = section.heading.trim();
+    if (isChineseAbstractHeading(heading)) {
       abstractZh = stripMarkdown(section.markdown);
     }
-    if (heading === "abstract") {
+    if (isEnglishAbstractHeading(heading)) {
       abstractEn = stripMarkdown(section.markdown);
     }
-    if (heading === "关键词" || heading === "关键字") {
+    if (isChineseKeywordHeading(heading)) {
       keywordsZh = parseKeywordsFromText(stripMarkdown(section.markdown));
     }
-    if (heading === "keywords") {
+    if (isEnglishKeywordHeading(heading)) {
       keywordsEn = parseKeywordsFromText(stripMarkdown(section.markdown));
     }
   });

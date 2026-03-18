@@ -68,6 +68,7 @@ const paperDocumentSchema = z.object({
       isSyntheticData: z.boolean(),
       note: z.string().optional(),
       renderedSvg: z.string().optional(),
+      renderedPngBase64: z.string().optional(),
     })
   ),
   layoutConfig: paperLayoutSchema,
@@ -100,6 +101,20 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    console.info("[docx-export] 接收到 DOCX 导出请求", {
+      title: parsed.data.paperDocument.title,
+      sectionCount: parsed.data.paperDocument.sections.length,
+      artifactCount: parsed.data.paperDocument.artifacts.length,
+      artifacts: parsed.data.paperDocument.artifacts.map((artifact) => ({
+        id: artifact.id,
+        type: artifact.type,
+        hasRenderedSvg: Boolean(artifact.renderedSvg),
+        renderedSvgLength: artifact.renderedSvg?.length || 0,
+        hasRenderedPngBase64: Boolean(artifact.renderedPngBase64),
+        renderedPngBase64Length: artifact.renderedPngBase64?.length || 0,
+        contentPreview: artifact.content.slice(0, 120),
+      })),
+    });
     const exportPaperDocument = applyTemplateProfileToPaperDocument(
       {
         ...parsed.data.paperDocument,
@@ -112,6 +127,10 @@ export async function POST(req: NextRequest) {
     const buffer = await buildTemplateThesisDocxBuffer({
       ...exportPaperDocument,
     });
+    console.info("[docx-export] DOCX 构建完成", {
+      title: parsed.data.paperDocument.title,
+      bufferSize: buffer.byteLength,
+    });
     return new NextResponse(buffer, {
       status: 200,
       headers: {
@@ -123,6 +142,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
+    console.error("[docx-export] DOCX 导出失败", error);
     return jsonError("EXPORT_FAILED", parseError(error), 500);
   }
 }

@@ -109,6 +109,174 @@ function buildTemplateDiagnostics(
   };
 }
 
+function normalizeMermaidCode(code: string) {
+  return code
+    .trim()
+    .replace(/^```mermaid\s*/i, "")
+    .replace(/```$/i, "")
+    .replace(/^mermaid\s+/i, "")
+    .trim();
+}
+
+function extractMermaidBlocksFromMarkdown(markdown: string) {
+  const mermaidBlocks: string[] = [];
+  const cleanedMarkdown = markdown
+    .replace(/```mermaid\s*([\s\S]*?)```/gi, (_matched, code: string) => {
+      const normalizedCode = normalizeMermaidCode(code);
+      if (normalizedCode) {
+        mermaidBlocks.push(normalizedCode);
+      }
+      return "";
+    })
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  return {
+    cleanedMarkdown,
+    mermaidBlocks,
+  };
+}
+
+function promoteMarkdownMermaidArtifacts(paperDocument: PaperDocument) {
+  const inlineArtifacts: PaperArtifact[] = [];
+  let inlineIndex = 0;
+
+  const sections = paperDocument.sections.map((section) => {
+    const { cleanedMarkdown, mermaidBlocks } = extractMermaidBlocksFromMarkdown(
+      section.markdown
+    );
+
+    mermaidBlocks.forEach((content, index) => {
+      inlineIndex += 1;
+      inlineArtifacts.push({
+        id: `artifact-mermaid-inline-${section.id}-${index + 1}`,
+        type: "mermaid",
+        title: `${section.heading || "正文"} Mermaid 图 ${inlineIndex}`,
+        placementSectionId: section.id,
+        content,
+        isSyntheticData: true,
+        note: "注：该图由正文中的 Mermaid 代码块自动提取，用于 DOCX 导出渲染。",
+      });
+    });
+
+    return {
+      ...section,
+      markdown: cleanedMarkdown,
+    };
+  });
+
+  if (inlineArtifacts.length === 0) {
+    return {
+      paperDocument,
+      extractedCount: 0,
+    };
+  }
+
+  return {
+    paperDocument: {
+      ...paperDocument,
+      sections,
+      artifacts: [...paperDocument.artifacts, ...inlineArtifacts],
+    },
+    extractedCount: inlineArtifacts.length,
+  };
+}
+
+function getSvgDimensionValue(rawValue?: string | null) {
+  if (!rawValue) return undefined;
+  const matched = /([\d.]+)/.exec(rawValue);
+  if (!matched) return undefined;
+  const value = Number(matched[1]);
+  return Number.isFinite(value) && value > 0 ? value : undefined;
+}
+
+function getSvgRenderSize(svg: string) {
+  if (typeof DOMParser === "undefined") {
+    return { width: 1200, height: 720 };
+  }
+
+  try {
+    const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+    const svgElement = doc.querySelector("svg");
+    if (!svgElement) {
+      return { width: 1200, height: 720 };
+    }
+
+    const widthAttr = getSvgDimensionValue(svgElement.getAttribute("width"));
+    const heightAttr = getSvgDimensionValue(svgElement.getAttribute("height"));
+    const viewBox = svgElement.getAttribute("viewBox");
+    const viewBoxParts = viewBox
+      ?.trim()
+      .split(/[\s,]+/)
+      .map((item) => Number(item));
+    const viewBoxWidth =
+      viewBoxParts && viewBoxParts.length === 4 && Number.isFinite(viewBoxParts[2])
+        ? viewBoxParts[2]
+        : undefined;
+    const viewBoxHeight =
+      viewBoxParts && viewBoxParts.length === 4 && Number.isFinite(viewBoxParts[3])
+        ? viewBoxParts[3]
+        : undefined;
+
+    const width = widthAttr || viewBoxWidth || 1200;
+    const height = heightAttr || viewBoxHeight || 720;
+
+    return {
+      width: Math.max(320, Math.round(width)),
+      height: Math.max(180, Math.round(height)),
+    };
+  } catch {
+    return { width: 1200, height: 720 };
+  }
+}
+
+function svgToDataUrl(svg: string) {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+async function svgToPngBase64(svg: string) {
+  if (
+    typeof window === "undefined" ||
+    typeof document === "undefined" ||
+    typeof Image === "undefined"
+  ) {
+    return undefined;
+  }
+
+  const { width, height } = getSvgRenderSize(svg);
+  const scale = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+
+  const context = canvas.getContext("2d");
+  if (!context) return undefined;
+
+  context.scale(scale, scale);
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const nextImage = new Image();
+      nextImage.onload = () => resolve(nextImage);
+      nextImage.onerror = () => reject(new Error("SVG 转 PNG 失败"));
+      nextImage.src = svgToDataUrl(svg);
+    });
+
+    context.drawImage(image, 0, 0, width, height);
+    return canvas.toDataURL("image/png").split(",")[1];
+  } catch (error) {
+    console.error("[docx-export] SVG 转 PNG 失败", {
+      error,
+      width,
+      height,
+      svgPreview: svg.slice(0, 200),
+    });
+    return undefined;
+  }
+}
+
 function FinalReport() {
   const { t } = useTranslation();
   const taskStore = useTaskStore();
@@ -544,17 +712,58 @@ function FinalReport() {
     return await Promise.all(
       artifacts.map(async (artifact) => {
         if (artifact.type !== "mermaid") return artifact;
+        const container =
+          typeof document !== "undefined" ? document.createElement("div") : null;
         try {
+          const normalizedCode = normalizeMermaidCode(artifact.content);
+          console.info("[docx-export] 开始处理 Mermaid artifact", {
+            id: artifact.id,
+            title: artifact.title,
+            contentPreview: artifact.content.slice(0, 200),
+            normalizedPreview: normalizedCode.slice(0, 200),
+          });
+          if (!normalizedCode) return artifact;
+          if (container && document.body) {
+            container.style.position = "fixed";
+            container.style.left = "-99999px";
+            container.style.top = "-99999px";
+            container.style.width = "1200px";
+            container.style.pointerEvents = "none";
+            document.body.appendChild(container);
+          }
           const result = await mermaid.render(
             `paper-export-${artifact.id}-${Date.now()}`,
-            artifact.content
+            normalizedCode,
+            container || undefined
           );
+          console.info("[docx-export] Mermaid 渲染成功", {
+            id: artifact.id,
+            svgLength: result.svg.length,
+          });
+          const renderedPngBase64 = await svgToPngBase64(result.svg);
+          console.info("[docx-export] Mermaid 图片转换结果", {
+            id: artifact.id,
+            hasRenderedSvg: Boolean(result.svg),
+            renderedSvgLength: result.svg.length,
+            hasRenderedPngBase64: Boolean(renderedPngBase64),
+            renderedPngBase64Length: renderedPngBase64?.length || 0,
+          });
           return {
             ...artifact,
+            content: normalizedCode,
             renderedSvg: result.svg,
+            renderedPngBase64,
           };
-        } catch {
+        } catch (error) {
+          console.error("[docx-export] Mermaid 渲染失败", {
+            id: artifact.id,
+            title: artifact.title,
+            contentPreview: artifact.content.slice(0, 200),
+            error,
+          });
           return artifact;
+        } finally {
+          container?.remove();
         }
       })
     );
@@ -575,8 +784,16 @@ function FinalReport() {
       ) {
         throw new Error("当前模板体检未通过，请先处理阻塞问题后再导出。");
       }
-      const paperDocument =
-        taskStore.paperDocument.sections.length > 0
+      const paperDocument = taskStore.finalReport.trim()
+        ? derivePaperDocument({
+            title: taskStore.title || taskStore.paperDocument.title,
+            markdown: taskStore.finalReport,
+            sources: taskStore.sources,
+            artifacts: taskStore.paperDocument.artifacts,
+            layoutConfig: taskStore.paperDocument.layoutConfig,
+            templateMeta: taskStore.paperDocument.templateMeta,
+          })
+        : taskStore.paperDocument.sections.length > 0
           ? taskStore.paperDocument
           : derivePaperDocument({
               title: taskStore.title,
@@ -586,9 +803,14 @@ function FinalReport() {
               layoutConfig: taskStore.paperDocument.layoutConfig,
               templateMeta: taskStore.paperDocument.templateMeta,
             });
-      const { paperDocument: exportPaperDocument, warnings } =
+      const { paperDocument: preparedPaperDocument, warnings } =
         preparePaperDocumentForExport(paperDocument, taskStore.sources);
+      const {
+        paperDocument: exportPaperDocument,
+        extractedCount: extractedMarkdownMermaidCount,
+      } = promoteMarkdownMermaidArtifacts(preparedPaperDocument);
       const validationErrors: string[] = [];
+      const validationWarnings: string[] = [];
       const { templateMeta } = exportPaperDocument;
 
       if (!exportPaperDocument.title.trim()) validationErrors.push("论文题目未填写");
@@ -598,19 +820,46 @@ function FinalReport() {
       if (!templateMeta.studentName.trim()) validationErrors.push("学生姓名未填写");
       if (!templateMeta.studentId.trim()) validationErrors.push("学号未填写");
       if (!templateMeta.advisor.trim()) validationErrors.push("指导教师未填写");
-      if (!exportPaperDocument.abstractZh.trim()) validationErrors.push("中文摘要未完成");
-      if (!exportPaperDocument.abstractEn.trim()) validationErrors.push("英文摘要未完成");
+      if (!exportPaperDocument.abstractZh.trim()) {
+        validationWarnings.push("中文摘要未完成");
+      }
+      if (!exportPaperDocument.abstractEn.trim()) {
+        validationWarnings.push("英文摘要未完成");
+      }
 
       if (validationErrors.length > 0) {
         throw new Error(
           `论文模板信息不完整：${validationErrors.slice(0, 6).join("、")}`
         );
       }
+      if (validationWarnings.length > 0) {
+        toast.warning(
+          `以下内容尚未完善，但不会阻止导出：${validationWarnings.join("、")}`
+        );
+      }
       if (warnings.length > 0) {
         toast.warning(warnings.join("；"));
       }
 
+      console.info("[docx-export] 开始导出 DOCX", {
+        title: exportPaperDocument.title,
+        sectionCount: exportPaperDocument.sections.length,
+        artifactCount: exportPaperDocument.artifacts.length,
+        extractedMarkdownMermaidCount,
+      });
       const artifacts = await renderMermaidArtifacts(exportPaperDocument.artifacts);
+      console.info(
+        "[docx-export] 导出前 artifact 摘要",
+        artifacts.map((artifact) => ({
+          id: artifact.id,
+          type: artifact.type,
+          hasRenderedSvg: Boolean(artifact.renderedSvg),
+          renderedSvgLength: artifact.renderedSvg?.length || 0,
+          hasRenderedPngBase64: Boolean(artifact.renderedPngBase64),
+          renderedPngBase64Length: artifact.renderedPngBase64?.length || 0,
+          contentPreview: artifact.content.slice(0, 120),
+        }))
+      );
       const response = await fetch("/api/export/docx", {
         method: "POST",
         headers: {
@@ -623,6 +872,10 @@ function FinalReport() {
           },
           templateProfile: selectedTemplateProfile,
         }),
+      });
+      console.info("[docx-export] /api/export/docx 响应", {
+        ok: response.ok,
+        status: response.status,
       });
 
       if (!response.ok) {
