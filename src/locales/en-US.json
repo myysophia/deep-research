@@ -533,6 +533,85 @@
       "formatPreview": "Format Preview"
     }
   },
+  "home": {
+    "overview": {
+      "brand": "Workspace",
+      "title": "Workspace Home",
+      "description": "Choose a workspace to continue your thesis flow.",
+      "nav": {
+        "home": "Home",
+        "write": "AI Thesis Writing",
+        "revise": "AI Thesis Revision",
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu"
+      },
+      "cards": {
+        "write": {
+          "title": "AI Thesis Writing",
+          "description": "Keep the current end-to-end writing workflow from topic selection to final draft.",
+          "action": "Open writing"
+        },
+        "revise": {
+          "title": "AI Thesis Revision",
+          "description": "Upload a commented thesis, parse reviewer feedback, and generate revision results.",
+          "action": "Open revision"
+        }
+      }
+    }
+  },
+  "write": {
+    "workspace": {
+      "title": "AI Thesis Writing",
+      "description": "Continue the existing writing flow and move your research toward a final draft."
+    }
+  },
+  "revise": {
+    "workspace": {
+      "title": "AI Thesis Revision",
+      "description": "Parse reviewer comments, revise safe items automatically, and export a clean draft plus revision notes.",
+      "panelTitle": "AI Thesis Revision Workspace",
+      "panelDescription": "Upload a commented docx, choose reviewers, and let the system handle safe edits while leaving high-risk items for manual review.",
+      "reset": "Start over"
+    },
+    "steps": {
+      "1": "Upload document",
+      "2": "Choose authors",
+      "3": "Plan overview",
+      "4": "Export results"
+    },
+    "messages": {
+      "analyzeFailed": "Failed to analyze comments. Please try again.",
+      "planFailed": "Failed to generate the revision plan. Please try again.",
+      "applyFailed": "Failed to apply automatic revisions. Please try again.",
+      "exportFailed": "Failed to export the revised document. Please try again."
+    },
+    "upload": {
+      "title": "Upload a commented docx thesis",
+      "description": "This version only supports docx files and will remove comment sidebars when exporting the clean draft and revision notes.",
+      "selectFile": "Choose document",
+      "fileMeta": "File size: {{size}}"
+    },
+    "authors": {
+      "title": "Choose comment authors to process",
+      "description": "We recommend selecting only reviewers or teachers and skipping reply-style comments.",
+      "unknown": "Unnamed author",
+      "commentCount": "{{count}} comments",
+      "generatePlan": "Generate revision plan"
+    },
+    "actions": {
+      "back": "Back to author selection"
+    },
+    "plan": {
+      "title": "Revision plan overview",
+      "apply": "Run automatic revision"
+    },
+    "result": {
+      "title": "Automatic revision result",
+      "downloadDocx": "Download revised docx",
+      "downloadMarkdown": "Download Markdown notes",
+      "preview": "Revision note preview"
+    }
+  },
   "auth": {
     "gate": {
       "checking": "Checking sign-in status..."

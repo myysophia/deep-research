@@ -533,6 +533,85 @@
       "formatPreview": "格式预览"
     }
   },
+  "home": {
+    "overview": {
+      "brand": "Workspace",
+      "title": "工作台首页",
+      "description": "选择一个工作台继续你的论文工作流程。",
+      "nav": {
+        "home": "首页",
+        "write": "AI论文撰写",
+        "revise": "AI论文修改",
+        "openMenu": "打开菜单",
+        "closeMenu": "关闭菜单"
+      },
+      "cards": {
+        "write": {
+          "title": "AI论文撰写",
+          "description": "从选题、研究到生成终稿，沿用现有完整撰写工作流。",
+          "action": "进入撰写"
+        },
+        "revise": {
+          "title": "AI论文修改",
+          "description": "上传带批注论文，自动解析审阅意见并生成修订结果。",
+          "action": "进入修改"
+        }
+      }
+    }
+  },
+  "write": {
+    "workspace": {
+      "title": "AI论文撰写",
+      "description": "继续使用既有撰写流程，推进你的研究与终稿。"
+    }
+  },
+  "revise": {
+    "workspace": {
+      "title": "AI论文修改",
+      "description": "按批注解析审阅意见，自动修订安全项，并输出干净稿与修改说明。",
+      "panelTitle": "AI论文修改工作台",
+      "panelDescription": "上传带批注 docx，选择审阅者，系统会自动处理安全可改项，并把高风险内容保留为人工确认。",
+      "reset": "重新开始"
+    },
+    "steps": {
+      "1": "上传文档",
+      "2": "勾选作者",
+      "3": "方案总览",
+      "4": "导出结果"
+    },
+    "messages": {
+      "analyzeFailed": "批注解析失败，请稍后重试。",
+      "planFailed": "修改方案生成失败，请稍后重试。",
+      "applyFailed": "自动修改执行失败，请稍后重试。",
+      "exportFailed": "修订文档导出失败，请稍后重试。"
+    },
+    "upload": {
+      "title": "上传带批注的 docx 论文",
+      "description": "当前版本仅支持 docx，并会在导出时清除批注侧栏，生成干净稿与修改说明。",
+      "selectFile": "选择文档",
+      "fileMeta": "文件大小：{{size}}"
+    },
+    "authors": {
+      "title": "选择要处理的批注作者",
+      "description": "建议只勾选老师或审阅者，忽略“改了改了”等回复性批注作者。",
+      "unknown": "未命名作者",
+      "commentCount": "共 {{count}} 条批注",
+      "generatePlan": "生成修改方案"
+    },
+    "actions": {
+      "back": "返回作者选择"
+    },
+    "plan": {
+      "title": "修改方案总览",
+      "apply": "执行自动修改"
+    },
+    "result": {
+      "title": "自动修改结果",
+      "downloadDocx": "下载修订稿 docx",
+      "downloadMarkdown": "下载修改说明 Markdown",
+      "preview": "修改对照说明预览"
+    }
+  },
   "auth": {
     "gate": {
       "checking": "正在检查登录状态..."
