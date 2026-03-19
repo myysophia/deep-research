@@ -21,5 +21,7 @@ services:
       - SUPABASE_URL=${SUPABASE_URL:-https://jaotyxuadwoiwzrrzdma.supabase.co}
       - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      # SaaS MVP Configuration
+      - NEXT_PUBLIC_SAAS_MVP_ENABLED=${SAAS_MVP_ENABLED:-0}
     ports:
       - "3333:3000"

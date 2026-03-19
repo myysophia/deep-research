@@ -36,6 +36,7 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
 ENV SUPABASE_URL=${SUPABASE_URL}
 ENV SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
 ENV SAAS_MVP_ENABLED=${SAAS_MVP_ENABLED}
+ENV NEXT_PUBLIC_SAAS_MVP_ENABLED=${SAAS_MVP_ENABLED}
 
 # Set build mode to standalone for Docker deployment
 ENV NEXT_PUBLIC_BUILD_MODE=standalone
@@ -46,8 +47,12 @@ RUN pnpm run build
 FROM base AS runner
 WORKDIR /app
 
+# Build args for runtime configuration
+ARG SAAS_MVP_ENABLED=0
+
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_BUILD_MODE=standalone
+ENV NEXT_PUBLIC_SAAS_MVP_ENABLED=${SAAS_MVP_ENABLED}
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
