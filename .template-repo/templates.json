@@ -1,0 +1,1953 @@
+{
+  "template-基于4i理论的国产美妆品牌谷雨": {
+    "current": {
+      "id": "template-基于4i理论的国产美妆品牌谷雨",
+      "name": "基于4I理论的国产美妆品牌谷雨",
+      "source": "user-uploaded",
+      "documentKind": "sample-paper",
+      "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+      "thesisType": "graduation-thesis",
+      "educationLevel": "undergraduate",
+      "originalFileName": "基于4I理论的国产美妆品牌谷雨.docx",
+      "sections": [
+        {
+          "key": "cover",
+          "label": "封面",
+          "detected": true,
+          "order": 1,
+          "startAnchorText": "毕s业s论s文",
+          "confidence": 0.9
+        },
+        {
+          "key": "declaration",
+          "label": "独创性声明",
+          "detected": true,
+          "order": 2,
+          "startAnchorText": "独创性声明",
+          "confidence": 0.9
+        },
+        {
+          "key": "authorization",
+          "label": "授权书",
+          "detected": false,
+          "order": 3,
+          "confidence": 0.5
+        },
+        {
+          "key": "abstract-zh",
+          "label": "中文摘要",
+          "detected": true,
+          "order": 4,
+          "startAnchorText": "摘s要",
+          "confidence": 0.9
+        },
+        {
+          "key": "abstract-en",
+          "label": "英文摘要",
+          "detected": true,
+          "order": 5,
+          "startAnchorText": "abstract",
+          "confidence": 0.9
+        },
+        {
+          "key": "toc",
+          "label": "目录",
+          "detected": true,
+          "order": 6,
+          "startAnchorText": "目s录",
+          "confidence": 0.95
+        },
+        {
+          "key": "body",
+          "label": "正文",
+          "detected": true,
+          "order": 7,
+          "startAnchorText": "绪论",
+          "confidence": 0.9
+        },
+        {
+          "key": "references",
+          "label": "参考文献",
+          "detected": true,
+          "order": 8,
+          "startAnchorText": "参考文献",
+          "confidence": 0.9
+        },
+        {
+          "key": "acknowledgements",
+          "label": "致谢",
+          "detected": true,
+          "order": 9,
+          "startAnchorText": "致谢",
+          "confidence": 0.9
+        },
+        {
+          "key": "appendix",
+          "label": "附录",
+          "detected": false,
+          "order": 10,
+          "confidence": 0.5
+        }
+      ],
+      "fieldAnchors": [
+        {
+          "key": "title",
+          "label": "题目",
+          "anchorText": "题目：",
+          "confidence": 0.92
+        },
+        {
+          "key": "college",
+          "label": "学院",
+          "anchorText": "学    院：",
+          "confidence": 0.92
+        },
+        {
+          "key": "major",
+          "label": "专业",
+          "anchorText": "专    业：",
+          "confidence": 0.92
+        },
+        {
+          "key": "className",
+          "label": "班级",
+          "anchorText": "班    级：",
+          "confidence": 0.92
+        },
+        {
+          "key": "studentId",
+          "label": "学号",
+          "anchorText": "学    号：",
+          "confidence": 0.92
+        },
+        {
+          "key": "studentName",
+          "label": "姓名",
+          "anchorText": "姓    名：",
+          "confidence": 0.92
+        },
+        {
+          "key": "advisor",
+          "label": "指导教师",
+          "anchorText": "指导教师：",
+          "confidence": 0.92
+        },
+        {
+          "key": "completionDate",
+          "label": "完成日期",
+          "anchorText": "日期：",
+          "confidence": 0.92
+        }
+      ],
+      "styleRoles": [
+        {
+          "role": "body-text",
+          "fontFamily": "待识别",
+          "confidence": 0.35
+        },
+        {
+          "role": "heading-1",
+          "confidence": 0.62
+        },
+        {
+          "role": "heading-2",
+          "confidence": 0.56
+        },
+        {
+          "role": "abstract-title-zh",
+          "confidence": 0.82
+        },
+        {
+          "role": "abstract-title-en",
+          "confidence": 0.82
+        },
+        {
+          "role": "toc-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "reference-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "heading-1",
+          "styleId": "2",
+          "styleName": "heading 1",
+          "fontFamily": "黑体",
+          "fontSizePt": 16,
+          "bold": true,
+          "alignment": "center",
+          "confidence": 0.92
+        },
+        {
+          "role": "heading-2",
+          "styleId": "3",
+          "styleName": "heading 2",
+          "fontSizePt": 15,
+          "bold": true,
+          "confidence": 0.9
+        },
+        {
+          "role": "heading-3",
+          "styleId": "4",
+          "styleName": "heading 3",
+          "fontSizePt": 14,
+          "bold": true,
+          "confidence": 0.88
+        },
+        {
+          "role": "toc-title",
+          "styleId": "6",
+          "styleName": "toc 3",
+          "bold": false,
+          "confidence": 0.78
+        },
+        {
+          "role": "cover-title",
+          "styleId": "9",
+          "styleName": "header",
+          "fontSizePt": 9,
+          "bold": false,
+          "alignment": "center",
+          "confidence": 0.35
+        },
+        {
+          "role": "toc-title",
+          "styleId": "10",
+          "styleName": "toc 1",
+          "bold": false,
+          "confidence": 0.78
+        },
+        {
+          "role": "toc-title",
+          "styleId": "11",
+          "styleName": "toc 2",
+          "bold": false,
+          "confidence": 0.78
+        }
+      ],
+      "pageRule": {
+        "paperSize": "A4",
+        "marginsCm": {
+          "top": 3,
+          "right": 2.5,
+          "bottom": 2,
+          "left": 2.5
+        },
+        "hasDifferentFirstPage": true,
+        "pageNumberStart": 1,
+        "pageNumberFormat": "decimal",
+        "headerTextLeft": "毕业论文",
+        "pageNumberPosition": "center"
+      },
+      "confirmationItems": [
+        {
+          "id": "section-authorization",
+          "type": "section",
+          "label": "授权书识别确认",
+          "description": "系统对“授权书”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "authorization",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "section-appendix",
+          "type": "section",
+          "label": "附录识别确认",
+          "description": "系统对“附录”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "appendix",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "style-heading-1",
+          "type": "style",
+          "label": "heading-1 样式确认",
+          "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.62,
+          "resolved": false,
+          "targetKey": "heading-1"
+        },
+        {
+          "id": "style-heading-2",
+          "type": "style",
+          "label": "heading-2 样式确认",
+          "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.56,
+          "resolved": false,
+          "targetKey": "heading-2"
+        }
+      ],
+      "version": 1,
+      "schoolName": "兰州信息科技学院",
+      "confidenceScore": 0.95,
+      "createdAt": 1773755239171,
+      "updatedAt": 1773755239179
+    },
+    "history": []
+  },
+  "template-基于python和高德地图租房": {
+    "current": {
+      "id": "template-基于python和高德地图租房",
+      "name": "基于Python和高德地图租房",
+      "source": "user-uploaded",
+      "documentKind": "sample-paper",
+      "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+      "thesisType": "graduation-thesis",
+      "educationLevel": "undergraduate",
+      "originalFileName": "基于Python和高德地图租房.docx",
+      "sections": [
+        {
+          "key": "cover",
+          "label": "封面",
+          "detected": true,
+          "order": 1,
+          "startAnchorText": "毕s业s论s文",
+          "confidence": 0.9
+        },
+        {
+          "key": "declaration",
+          "label": "独创性声明",
+          "detected": false,
+          "order": 2,
+          "confidence": 0.5
+        },
+        {
+          "key": "authorization",
+          "label": "授权书",
+          "detected": false,
+          "order": 3,
+          "confidence": 0.5
+        },
+        {
+          "key": "abstract-zh",
+          "label": "中文摘要",
+          "detected": true,
+          "order": 4,
+          "startAnchorText": "摘s要",
+          "confidence": 0.9
+        },
+        {
+          "key": "abstract-en",
+          "label": "英文摘要",
+          "detected": false,
+          "order": 5,
+          "confidence": 0.2
+        },
+        {
+          "key": "toc",
+          "label": "目录",
+          "detected": true,
+          "order": 6,
+          "startAnchorText": "目s录",
+          "confidence": 0.95
+        },
+        {
+          "key": "body",
+          "label": "正文",
+          "detected": true,
+          "order": 7,
+          "startAnchorText": "绪论",
+          "confidence": 0.9
+        },
+        {
+          "key": "references",
+          "label": "参考文献",
+          "detected": true,
+          "order": 8,
+          "startAnchorText": "参考文献",
+          "confidence": 0.9
+        },
+        {
+          "key": "acknowledgements",
+          "label": "致谢",
+          "detected": true,
+          "order": 9,
+          "startAnchorText": "致谢",
+          "confidence": 0.9
+        },
+        {
+          "key": "appendix",
+          "label": "附录",
+          "detected": false,
+          "order": 10,
+          "confidence": 0.5
+        }
+      ],
+      "fieldAnchors": [],
+      "styleRoles": [
+        {
+          "role": "body-text",
+          "fontFamily": "待识别",
+          "confidence": 0.35
+        },
+        {
+          "role": "heading-1",
+          "confidence": 0.62
+        },
+        {
+          "role": "heading-2",
+          "confidence": 0.56
+        },
+        {
+          "role": "abstract-title-zh",
+          "confidence": 0.82
+        },
+        {
+          "role": "toc-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "reference-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "toc-title",
+          "styleId": "3",
+          "styleName": "toc 3",
+          "bold": false,
+          "confidence": 0.78
+        },
+        {
+          "role": "cover-title",
+          "styleId": "6",
+          "styleName": "header",
+          "fontSizePt": 9,
+          "bold": false,
+          "alignment": "center",
+          "confidence": 0.35
+        },
+        {
+          "role": "toc-title",
+          "styleId": "7",
+          "styleName": "toc 1",
+          "bold": false,
+          "confidence": 0.78
+        },
+        {
+          "role": "toc-title",
+          "styleId": "8",
+          "styleName": "toc 2",
+          "bold": false,
+          "confidence": 0.78
+        }
+      ],
+      "pageRule": {
+        "paperSize": "A4",
+        "marginsCm": {
+          "top": 2.54,
+          "right": 3.17,
+          "bottom": 2.54,
+          "left": 3.17
+        },
+        "hasDifferentFirstPage": false,
+        "pageNumberStart": 1,
+        "pageNumberFormat": "decimal",
+        "headerTextLeft": "摘要",
+        "pageNumberPosition": "center"
+      },
+      "confirmationItems": [
+        {
+          "id": "section-declaration",
+          "type": "section",
+          "label": "独创性声明识别确认",
+          "description": "系统对“独创性声明”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "declaration",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "section-authorization",
+          "type": "section",
+          "label": "授权书识别确认",
+          "description": "系统对“授权书”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "authorization",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "section-abstract-en",
+          "type": "section",
+          "label": "英文摘要识别确认",
+          "description": "系统对“英文摘要”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.2,
+          "resolved": false,
+          "targetKey": "abstract-en",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "section-appendix",
+          "type": "section",
+          "label": "附录识别确认",
+          "description": "系统对“附录”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "appendix",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "field-title",
+          "type": "field",
+          "label": "题目字段确认",
+          "description": "未稳定识别到封面题目字段，请确认题目锚点位置。",
+          "confidence": 0.2,
+          "resolved": false,
+          "targetKey": "title"
+        },
+        {
+          "id": "style-heading-1",
+          "type": "style",
+          "label": "heading-1 样式确认",
+          "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.62,
+          "resolved": false,
+          "targetKey": "heading-1"
+        },
+        {
+          "id": "style-heading-2",
+          "type": "style",
+          "label": "heading-2 样式确认",
+          "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.56,
+          "resolved": false,
+          "targetKey": "heading-2"
+        }
+      ],
+      "version": 1,
+      "schoolName": "电子科技大学成都学院",
+      "confidenceScore": 0.48,
+      "createdAt": 1773755283998,
+      "updatedAt": 1773755284007
+    },
+    "history": []
+  },
+  "template-2稿-我国市场化债转股的动因与问题分析-1": {
+    "current": {
+      "id": "template-2稿-我国市场化债转股的动因与问题分析-1",
+      "name": "2稿 我国市场化债转股的动因与问题分析(1)",
+      "source": "user-uploaded",
+      "documentKind": "sample-paper",
+      "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+      "thesisType": "graduation-thesis",
+      "educationLevel": "undergraduate",
+      "originalFileName": "2稿 我国市场化债转股的动因与问题分析(1).docx",
+      "sections": [
+        {
+          "key": "cover",
+          "label": "封面",
+          "detected": true,
+          "order": 1,
+          "startAnchorText": "毕s业s论s文",
+          "confidence": 0.9
+        },
+        {
+          "key": "declaration",
+          "label": "独创性声明",
+          "detected": false,
+          "order": 2,
+          "confidence": 0.5
+        },
+        {
+          "key": "authorization",
+          "label": "授权书",
+          "detected": false,
+          "order": 3,
+          "confidence": 0.5
+        },
+        {
+          "key": "abstract-zh",
+          "label": "中文摘要",
+          "detected": true,
+          "order": 4,
+          "startAnchorText": "摘s要",
+          "confidence": 0.9
+        },
+        {
+          "key": "abstract-en",
+          "label": "英文摘要",
+          "detected": true,
+          "order": 5,
+          "startAnchorText": "abstract",
+          "confidence": 0.9
+        },
+        {
+          "key": "toc",
+          "label": "目录",
+          "detected": true,
+          "order": 6,
+          "startAnchorText": "目s录",
+          "confidence": 0.95
+        },
+        {
+          "key": "body",
+          "label": "正文",
+          "detected": true,
+          "order": 7,
+          "startAnchorText": "s1、s",
+          "confidence": 0.9
+        },
+        {
+          "key": "references",
+          "label": "参考文献",
+          "detected": true,
+          "order": 8,
+          "startAnchorText": "参考文献",
+          "confidence": 0.9
+        },
+        {
+          "key": "acknowledgements",
+          "label": "致谢",
+          "detected": true,
+          "order": 9,
+          "startAnchorText": "谢辞",
+          "confidence": 0.9
+        },
+        {
+          "key": "appendix",
+          "label": "附录",
+          "detected": true,
+          "order": 10,
+          "startAnchorText": "附录",
+          "confidence": 0.9
+        }
+      ],
+      "fieldAnchors": [
+        {
+          "key": "title",
+          "label": "题目",
+          "anchorText": "题目：",
+          "confidence": 0.92
+        }
+      ],
+      "styleRoles": [
+        {
+          "role": "body-text",
+          "fontFamily": "待识别",
+          "confidence": 0.35
+        },
+        {
+          "role": "heading-1",
+          "confidence": 0.62
+        },
+        {
+          "role": "heading-2",
+          "confidence": 0.56
+        },
+        {
+          "role": "heading-3",
+          "confidence": 0.5
+        },
+        {
+          "role": "abstract-title-zh",
+          "confidence": 0.82
+        },
+        {
+          "role": "abstract-title-en",
+          "confidence": 0.82
+        },
+        {
+          "role": "toc-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "reference-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "heading-1",
+          "styleId": "1",
+          "styleName": "heading 1",
+          "fontSizePt": 22,
+          "bold": true,
+          "confidence": 0.92
+        },
+        {
+          "role": "heading-2",
+          "styleId": "2",
+          "styleName": "heading 2",
+          "fontSizePt": 16,
+          "bold": true,
+          "confidence": 0.9
+        },
+        {
+          "role": "cover-title",
+          "styleId": "a9",
+          "styleName": "header",
+          "fontSizePt": 9,
+          "bold": false,
+          "confidence": 0.35
+        },
+        {
+          "role": "toc-title",
+          "styleId": "TOC1",
+          "styleName": "toc 1",
+          "bold": false,
+          "confidence": 0.78
+        },
+        {
+          "role": "toc-title",
+          "styleId": "TOC2",
+          "styleName": "toc 2",
+          "bold": false,
+          "confidence": 0.78
+        },
+        {
+          "role": "heading-1",
+          "styleId": "10",
+          "styleName": "标题 1 字符",
+          "fontSizePt": 22,
+          "bold": true,
+          "confidence": 0.92
+        },
+        {
+          "role": "heading-2",
+          "styleId": "20",
+          "styleName": "标题 2 字符",
+          "fontSizePt": 16,
+          "bold": true,
+          "confidence": 0.9
+        }
+      ],
+      "pageRule": {
+        "paperSize": "A4",
+        "marginsCm": {
+          "top": 2.5,
+          "right": 2.5,
+          "bottom": 2,
+          "left": 3
+        },
+        "hasDifferentFirstPage": true,
+        "pageNumberFormat": "decimal",
+        "headerTextLeft": "上 海 政 法 学 院 毕 业 论 文 报 告 纸",
+        "footerText": "2",
+        "pageNumberPosition": "right"
+      },
+      "confirmationItems": [
+        {
+          "id": "section-declaration",
+          "type": "section",
+          "label": "独创性声明识别确认",
+          "description": "系统对“独创性声明”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "declaration",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "section-authorization",
+          "type": "section",
+          "label": "授权书识别确认",
+          "description": "系统对“授权书”区段识别置信度较低，请确认是否存在该部分。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "authorization",
+          "suggestedValue": "未识别"
+        },
+        {
+          "id": "style-heading-1",
+          "type": "style",
+          "label": "heading-1 样式确认",
+          "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.62,
+          "resolved": false,
+          "targetKey": "heading-1"
+        },
+        {
+          "id": "style-heading-2",
+          "type": "style",
+          "label": "heading-2 样式确认",
+          "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.56,
+          "resolved": false,
+          "targetKey": "heading-2"
+        },
+        {
+          "id": "style-heading-3",
+          "type": "style",
+          "label": "heading-3 样式确认",
+          "description": "系统初步推断了 heading-3，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.5,
+          "resolved": false,
+          "targetKey": "heading-3"
+        }
+      ],
+      "version": 1,
+      "schoolName": "二级学院",
+      "confidenceScore": 0.95,
+      "createdAt": 1773755315580,
+      "updatedAt": 1773755315586
+    },
+    "history": []
+  },
+  "template-2026届毕业论文-设计-通用模板": {
+    "current": {
+      "id": "template-2026届毕业论文-设计-通用模板",
+      "name": "2026届毕业论文（设计）通用模板",
+      "source": "user-uploaded",
+      "documentKind": "sample-paper",
+      "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+      "thesisType": "graduation-thesis",
+      "educationLevel": "undergraduate",
+      "originalFileName": "2026届毕业论文（设计）通用模板.docx",
+      "sections": [
+        {
+          "key": "cover",
+          "label": "封面",
+          "detected": true,
+          "order": 1,
+          "startAnchorText": "毕s业s论s文",
+          "confidence": 0.9
+        },
+        {
+          "key": "declaration",
+          "label": "独创性声明",
+          "detected": true,
+          "order": 2,
+          "startAnchorText": "原创性声明",
+          "confidence": 0.9
+        },
+        {
+          "key": "authorization",
+          "label": "授权书",
+          "detected": true,
+          "order": 3,
+          "startAnchorText": "授权书",
+          "confidence": 0.9
+        },
+        {
+          "key": "abstract-zh",
+          "label": "中文摘要",
+          "detected": true,
+          "order": 4,
+          "startAnchorText": "摘s要",
+          "confidence": 0.9
+        },
+        {
+          "key": "abstract-en",
+          "label": "英文摘要",
+          "detected": true,
+          "order": 5,
+          "startAnchorText": "abstract",
+          "confidence": 0.9
+        },
+        {
+          "key": "toc",
+          "label": "目录",
+          "detected": true,
+          "order": 6,
+          "startAnchorText": "目s录",
+          "confidence": 0.95
+        },
+        {
+          "key": "body",
+          "label": "正文",
+          "detected": true,
+          "order": 7,
+          "startAnchorText": "s1、s",
+          "confidence": 0.9
+        },
+        {
+          "key": "references",
+          "label": "参考文献",
+          "detected": true,
+          "order": 8,
+          "startAnchorText": "参考文献",
+          "confidence": 0.9
+        },
+        {
+          "key": "acknowledgements",
+          "label": "致谢",
+          "detected": true,
+          "order": 9,
+          "startAnchorText": "致谢",
+          "confidence": 0.9
+        },
+        {
+          "key": "appendix",
+          "label": "附录",
+          "detected": true,
+          "order": 10,
+          "startAnchorText": "附录",
+          "confidence": 0.9
+        }
+      ],
+      "fieldAnchors": [
+        {
+          "key": "college",
+          "label": "学院",
+          "anchorText": "学    院：",
+          "confidence": 0.92
+        },
+        {
+          "key": "major",
+          "label": "专业",
+          "anchorText": "专    业：",
+          "confidence": 0.92
+        },
+        {
+          "key": "className",
+          "label": "班级",
+          "anchorText": "班    级：",
+          "confidence": 0.92
+        },
+        {
+          "key": "studentId",
+          "label": "学号",
+          "anchorText": "学    号：",
+          "confidence": 0.92
+        },
+        {
+          "key": "completionDate",
+          "label": "完成日期",
+          "anchorText": "日期：",
+          "confidence": 0.92
+        },
+        {
+          "key": "title",
+          "label": "题目",
+          "anchorText": "题目字段确认",
+          "confidence": 0.7
+        }
+      ],
+      "styleRoles": [
+        {
+          "role": "body-text",
+          "fontFamily": "待识别",
+          "confidence": 0.35
+        },
+        {
+          "role": "heading-1",
+          "confidence": 0.85
+        },
+        {
+          "role": "heading-2",
+          "confidence": 0.85
+        },
+        {
+          "role": "heading-3",
+          "confidence": 0.85
+        },
+        {
+          "role": "abstract-title-zh",
+          "confidence": 0.82
+        },
+        {
+          "role": "abstract-title-en",
+          "confidence": 0.82
+        },
+        {
+          "role": "toc-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "reference-title",
+          "confidence": 0.85
+        },
+        {
+          "role": "cover-title",
+          "styleId": "3",
+          "styleName": "header",
+          "fontSizePt": 9,
+          "bold": false,
+          "alignment": "both",
+          "confidence": 0.35
+        }
+      ],
+      "pageRule": {
+        "paperSize": "A4",
+        "marginsCm": {
+          "top": 2.5,
+          "right": 2.5,
+          "bottom": 2.5,
+          "left": 2.8
+        },
+        "hasDifferentFirstPage": false,
+        "pageNumberStart": 1,
+        "pageNumberFormat": "decimal",
+        "footerText": "Ⅰ",
+        "pageNumberPosition": "right"
+      },
+      "confirmationItems": [
+        {
+          "id": "field-title",
+          "type": "field",
+          "label": "题目字段确认",
+          "description": "未稳定识别到封面题目字段，请确认题目锚点位置。",
+          "confidence": 0.2,
+          "resolved": true,
+          "resolution": "confirmed",
+          "targetKey": "title"
+        },
+        {
+          "id": "style-heading-1",
+          "type": "style",
+          "label": "heading-1 样式确认",
+          "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.62,
+          "resolved": true,
+          "resolution": "confirmed",
+          "targetKey": "heading-1"
+        },
+        {
+          "id": "style-heading-2",
+          "type": "style",
+          "label": "heading-2 样式确认",
+          "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.56,
+          "resolved": true,
+          "resolution": "confirmed",
+          "targetKey": "heading-2"
+        },
+        {
+          "id": "style-heading-3",
+          "type": "style",
+          "label": "heading-3 样式确认",
+          "description": "系统初步推断了 heading-3，但置信度不足，建议在模板确认中校正。",
+          "confidence": 0.5,
+          "resolved": true,
+          "resolution": "confirmed",
+          "targetKey": "heading-3"
+        }
+      ],
+      "version": 5,
+      "originTemplateId": "template-2026届毕业论文-设计-通用模板",
+      "schoolName": "北京大学",
+      "confidenceScore": 0.99,
+      "createdAt": 1773755418009,
+      "updatedAt": 1773815315197
+    },
+    "history": [
+      {
+        "id": "template-2026届毕业论文-设计-通用模板",
+        "name": "2026届毕业论文（设计）通用模板",
+        "source": "user-uploaded",
+        "documentKind": "sample-paper",
+        "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+        "thesisType": "graduation-thesis",
+        "educationLevel": "undergraduate",
+        "originalFileName": "2026届毕业论文（设计）通用模板.docx",
+        "sections": [
+          {
+            "key": "cover",
+            "label": "封面",
+            "detected": true,
+            "order": 1,
+            "startAnchorText": "毕s业s论s文",
+            "confidence": 0.9
+          },
+          {
+            "key": "declaration",
+            "label": "独创性声明",
+            "detected": true,
+            "order": 2,
+            "startAnchorText": "原创性声明",
+            "confidence": 0.9
+          },
+          {
+            "key": "authorization",
+            "label": "授权书",
+            "detected": true,
+            "order": 3,
+            "startAnchorText": "授权书",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-zh",
+            "label": "中文摘要",
+            "detected": true,
+            "order": 4,
+            "startAnchorText": "摘s要",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-en",
+            "label": "英文摘要",
+            "detected": true,
+            "order": 5,
+            "startAnchorText": "abstract",
+            "confidence": 0.9
+          },
+          {
+            "key": "toc",
+            "label": "目录",
+            "detected": true,
+            "order": 6,
+            "startAnchorText": "目s录",
+            "confidence": 0.95
+          },
+          {
+            "key": "body",
+            "label": "正文",
+            "detected": true,
+            "order": 7,
+            "startAnchorText": "s1、s",
+            "confidence": 0.9
+          },
+          {
+            "key": "references",
+            "label": "参考文献",
+            "detected": true,
+            "order": 8,
+            "startAnchorText": "参考文献",
+            "confidence": 0.9
+          },
+          {
+            "key": "acknowledgements",
+            "label": "致谢",
+            "detected": true,
+            "order": 9,
+            "startAnchorText": "致谢",
+            "confidence": 0.9
+          },
+          {
+            "key": "appendix",
+            "label": "附录",
+            "detected": true,
+            "order": 10,
+            "startAnchorText": "附录",
+            "confidence": 0.9
+          }
+        ],
+        "fieldAnchors": [
+          {
+            "key": "college",
+            "label": "学院",
+            "anchorText": "学    院：",
+            "confidence": 0.92
+          },
+          {
+            "key": "major",
+            "label": "专业",
+            "anchorText": "专    业：",
+            "confidence": 0.92
+          },
+          {
+            "key": "className",
+            "label": "班级",
+            "anchorText": "班    级：",
+            "confidence": 0.92
+          },
+          {
+            "key": "studentId",
+            "label": "学号",
+            "anchorText": "学    号：",
+            "confidence": 0.92
+          },
+          {
+            "key": "completionDate",
+            "label": "完成日期",
+            "anchorText": "日期：",
+            "confidence": 0.92
+          },
+          {
+            "key": "title",
+            "label": "题目",
+            "anchorText": "题目字段确认",
+            "confidence": 0.7
+          }
+        ],
+        "styleRoles": [
+          {
+            "role": "body-text",
+            "fontFamily": "待识别",
+            "confidence": 0.35
+          },
+          {
+            "role": "heading-1",
+            "confidence": 0.85
+          },
+          {
+            "role": "heading-2",
+            "confidence": 0.85
+          },
+          {
+            "role": "heading-3",
+            "confidence": 0.5
+          },
+          {
+            "role": "abstract-title-zh",
+            "confidence": 0.82
+          },
+          {
+            "role": "abstract-title-en",
+            "confidence": 0.82
+          },
+          {
+            "role": "toc-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "reference-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "cover-title",
+            "styleId": "3",
+            "styleName": "header",
+            "fontSizePt": 9,
+            "bold": false,
+            "alignment": "both",
+            "confidence": 0.35
+          }
+        ],
+        "pageRule": {
+          "paperSize": "A4",
+          "marginsCm": {
+            "top": 2.5,
+            "right": 2.5,
+            "bottom": 2.5,
+            "left": 2.8
+          },
+          "hasDifferentFirstPage": false,
+          "pageNumberStart": 1,
+          "pageNumberFormat": "decimal",
+          "footerText": "Ⅰ",
+          "pageNumberPosition": "right"
+        },
+        "confirmationItems": [
+          {
+            "id": "field-title",
+            "type": "field",
+            "label": "题目字段确认",
+            "description": "未稳定识别到封面题目字段，请确认题目锚点位置。",
+            "confidence": 0.2,
+            "resolved": true,
+            "resolution": "confirmed",
+            "targetKey": "title"
+          },
+          {
+            "id": "style-heading-1",
+            "type": "style",
+            "label": "heading-1 样式确认",
+            "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.62,
+            "resolved": true,
+            "resolution": "confirmed",
+            "targetKey": "heading-1"
+          },
+          {
+            "id": "style-heading-2",
+            "type": "style",
+            "label": "heading-2 样式确认",
+            "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.56,
+            "resolved": true,
+            "resolution": "confirmed",
+            "targetKey": "heading-2"
+          },
+          {
+            "id": "style-heading-3",
+            "type": "style",
+            "label": "heading-3 样式确认",
+            "description": "系统初步推断了 heading-3，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.5,
+            "resolved": false,
+            "targetKey": "heading-3"
+          }
+        ],
+        "version": 4,
+        "originTemplateId": "template-2026届毕业论文-设计-通用模板",
+        "schoolName": "北京大学",
+        "confidenceScore": 0.99,
+        "createdAt": 1773755418009,
+        "updatedAt": 1773815314374
+      },
+      {
+        "id": "template-2026届毕业论文-设计-通用模板",
+        "name": "2026届毕业论文（设计）通用模板",
+        "source": "user-uploaded",
+        "documentKind": "sample-paper",
+        "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+        "thesisType": "graduation-thesis",
+        "educationLevel": "undergraduate",
+        "originalFileName": "2026届毕业论文（设计）通用模板.docx",
+        "sections": [
+          {
+            "key": "cover",
+            "label": "封面",
+            "detected": true,
+            "order": 1,
+            "startAnchorText": "毕s业s论s文",
+            "confidence": 0.9
+          },
+          {
+            "key": "declaration",
+            "label": "独创性声明",
+            "detected": true,
+            "order": 2,
+            "startAnchorText": "原创性声明",
+            "confidence": 0.9
+          },
+          {
+            "key": "authorization",
+            "label": "授权书",
+            "detected": true,
+            "order": 3,
+            "startAnchorText": "授权书",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-zh",
+            "label": "中文摘要",
+            "detected": true,
+            "order": 4,
+            "startAnchorText": "摘s要",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-en",
+            "label": "英文摘要",
+            "detected": true,
+            "order": 5,
+            "startAnchorText": "abstract",
+            "confidence": 0.9
+          },
+          {
+            "key": "toc",
+            "label": "目录",
+            "detected": true,
+            "order": 6,
+            "startAnchorText": "目s录",
+            "confidence": 0.95
+          },
+          {
+            "key": "body",
+            "label": "正文",
+            "detected": true,
+            "order": 7,
+            "startAnchorText": "s1、s",
+            "confidence": 0.9
+          },
+          {
+            "key": "references",
+            "label": "参考文献",
+            "detected": true,
+            "order": 8,
+            "startAnchorText": "参考文献",
+            "confidence": 0.9
+          },
+          {
+            "key": "acknowledgements",
+            "label": "致谢",
+            "detected": true,
+            "order": 9,
+            "startAnchorText": "致谢",
+            "confidence": 0.9
+          },
+          {
+            "key": "appendix",
+            "label": "附录",
+            "detected": true,
+            "order": 10,
+            "startAnchorText": "附录",
+            "confidence": 0.9
+          }
+        ],
+        "fieldAnchors": [
+          {
+            "key": "college",
+            "label": "学院",
+            "anchorText": "学    院：",
+            "confidence": 0.92
+          },
+          {
+            "key": "major",
+            "label": "专业",
+            "anchorText": "专    业：",
+            "confidence": 0.92
+          },
+          {
+            "key": "className",
+            "label": "班级",
+            "anchorText": "班    级：",
+            "confidence": 0.92
+          },
+          {
+            "key": "studentId",
+            "label": "学号",
+            "anchorText": "学    号：",
+            "confidence": 0.92
+          },
+          {
+            "key": "completionDate",
+            "label": "完成日期",
+            "anchorText": "日期：",
+            "confidence": 0.92
+          },
+          {
+            "key": "title",
+            "label": "题目",
+            "anchorText": "题目字段确认",
+            "confidence": 0.7
+          }
+        ],
+        "styleRoles": [
+          {
+            "role": "body-text",
+            "fontFamily": "待识别",
+            "confidence": 0.35
+          },
+          {
+            "role": "heading-1",
+            "confidence": 0.85
+          },
+          {
+            "role": "heading-2",
+            "confidence": 0.56
+          },
+          {
+            "role": "heading-3",
+            "confidence": 0.5
+          },
+          {
+            "role": "abstract-title-zh",
+            "confidence": 0.82
+          },
+          {
+            "role": "abstract-title-en",
+            "confidence": 0.82
+          },
+          {
+            "role": "toc-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "reference-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "cover-title",
+            "styleId": "3",
+            "styleName": "header",
+            "fontSizePt": 9,
+            "bold": false,
+            "alignment": "both",
+            "confidence": 0.35
+          }
+        ],
+        "pageRule": {
+          "paperSize": "A4",
+          "marginsCm": {
+            "top": 2.5,
+            "right": 2.5,
+            "bottom": 2.5,
+            "left": 2.8
+          },
+          "hasDifferentFirstPage": false,
+          "pageNumberStart": 1,
+          "pageNumberFormat": "decimal",
+          "footerText": "Ⅰ",
+          "pageNumberPosition": "right"
+        },
+        "confirmationItems": [
+          {
+            "id": "field-title",
+            "type": "field",
+            "label": "题目字段确认",
+            "description": "未稳定识别到封面题目字段，请确认题目锚点位置。",
+            "confidence": 0.2,
+            "resolved": true,
+            "resolution": "confirmed",
+            "targetKey": "title"
+          },
+          {
+            "id": "style-heading-1",
+            "type": "style",
+            "label": "heading-1 样式确认",
+            "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.62,
+            "resolved": true,
+            "resolution": "confirmed",
+            "targetKey": "heading-1"
+          },
+          {
+            "id": "style-heading-2",
+            "type": "style",
+            "label": "heading-2 样式确认",
+            "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.56,
+            "resolved": false,
+            "targetKey": "heading-2"
+          },
+          {
+            "id": "style-heading-3",
+            "type": "style",
+            "label": "heading-3 样式确认",
+            "description": "系统初步推断了 heading-3，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.5,
+            "resolved": false,
+            "targetKey": "heading-3"
+          }
+        ],
+        "version": 3,
+        "originTemplateId": "template-2026届毕业论文-设计-通用模板",
+        "schoolName": "北京大学",
+        "confidenceScore": 0.99,
+        "createdAt": 1773755418009,
+        "updatedAt": 1773815313572
+      },
+      {
+        "id": "template-2026届毕业论文-设计-通用模板",
+        "name": "2026届毕业论文（设计）通用模板",
+        "source": "user-uploaded",
+        "documentKind": "sample-paper",
+        "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+        "thesisType": "graduation-thesis",
+        "educationLevel": "undergraduate",
+        "originalFileName": "2026届毕业论文（设计）通用模板.docx",
+        "sections": [
+          {
+            "key": "cover",
+            "label": "封面",
+            "detected": true,
+            "order": 1,
+            "startAnchorText": "毕s业s论s文",
+            "confidence": 0.9
+          },
+          {
+            "key": "declaration",
+            "label": "独创性声明",
+            "detected": true,
+            "order": 2,
+            "startAnchorText": "原创性声明",
+            "confidence": 0.9
+          },
+          {
+            "key": "authorization",
+            "label": "授权书",
+            "detected": true,
+            "order": 3,
+            "startAnchorText": "授权书",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-zh",
+            "label": "中文摘要",
+            "detected": true,
+            "order": 4,
+            "startAnchorText": "摘s要",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-en",
+            "label": "英文摘要",
+            "detected": true,
+            "order": 5,
+            "startAnchorText": "abstract",
+            "confidence": 0.9
+          },
+          {
+            "key": "toc",
+            "label": "目录",
+            "detected": true,
+            "order": 6,
+            "startAnchorText": "目s录",
+            "confidence": 0.95
+          },
+          {
+            "key": "body",
+            "label": "正文",
+            "detected": true,
+            "order": 7,
+            "startAnchorText": "s1、s",
+            "confidence": 0.9
+          },
+          {
+            "key": "references",
+            "label": "参考文献",
+            "detected": true,
+            "order": 8,
+            "startAnchorText": "参考文献",
+            "confidence": 0.9
+          },
+          {
+            "key": "acknowledgements",
+            "label": "致谢",
+            "detected": true,
+            "order": 9,
+            "startAnchorText": "致谢",
+            "confidence": 0.9
+          },
+          {
+            "key": "appendix",
+            "label": "附录",
+            "detected": true,
+            "order": 10,
+            "startAnchorText": "附录",
+            "confidence": 0.9
+          }
+        ],
+        "fieldAnchors": [
+          {
+            "key": "college",
+            "label": "学院",
+            "anchorText": "学    院：",
+            "confidence": 0.92
+          },
+          {
+            "key": "major",
+            "label": "专业",
+            "anchorText": "专    业：",
+            "confidence": 0.92
+          },
+          {
+            "key": "className",
+            "label": "班级",
+            "anchorText": "班    级：",
+            "confidence": 0.92
+          },
+          {
+            "key": "studentId",
+            "label": "学号",
+            "anchorText": "学    号：",
+            "confidence": 0.92
+          },
+          {
+            "key": "completionDate",
+            "label": "完成日期",
+            "anchorText": "日期：",
+            "confidence": 0.92
+          },
+          {
+            "key": "title",
+            "label": "题目",
+            "anchorText": "题目字段确认",
+            "confidence": 0.7
+          }
+        ],
+        "styleRoles": [
+          {
+            "role": "body-text",
+            "fontFamily": "待识别",
+            "confidence": 0.35
+          },
+          {
+            "role": "heading-1",
+            "confidence": 0.62
+          },
+          {
+            "role": "heading-2",
+            "confidence": 0.56
+          },
+          {
+            "role": "heading-3",
+            "confidence": 0.5
+          },
+          {
+            "role": "abstract-title-zh",
+            "confidence": 0.82
+          },
+          {
+            "role": "abstract-title-en",
+            "confidence": 0.82
+          },
+          {
+            "role": "toc-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "reference-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "cover-title",
+            "styleId": "3",
+            "styleName": "header",
+            "fontSizePt": 9,
+            "bold": false,
+            "alignment": "both",
+            "confidence": 0.35
+          }
+        ],
+        "pageRule": {
+          "paperSize": "A4",
+          "marginsCm": {
+            "top": 2.5,
+            "right": 2.5,
+            "bottom": 2.5,
+            "left": 2.8
+          },
+          "hasDifferentFirstPage": false,
+          "pageNumberStart": 1,
+          "pageNumberFormat": "decimal",
+          "footerText": "Ⅰ",
+          "pageNumberPosition": "right"
+        },
+        "confirmationItems": [
+          {
+            "id": "field-title",
+            "type": "field",
+            "label": "题目字段确认",
+            "description": "未稳定识别到封面题目字段，请确认题目锚点位置。",
+            "confidence": 0.2,
+            "resolved": true,
+            "resolution": "confirmed",
+            "targetKey": "title"
+          },
+          {
+            "id": "style-heading-1",
+            "type": "style",
+            "label": "heading-1 样式确认",
+            "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.62,
+            "resolved": false,
+            "targetKey": "heading-1"
+          },
+          {
+            "id": "style-heading-2",
+            "type": "style",
+            "label": "heading-2 样式确认",
+            "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.56,
+            "resolved": false,
+            "targetKey": "heading-2"
+          },
+          {
+            "id": "style-heading-3",
+            "type": "style",
+            "label": "heading-3 样式确认",
+            "description": "系统初步推断了 heading-3，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.5,
+            "resolved": false,
+            "targetKey": "heading-3"
+          }
+        ],
+        "version": 2,
+        "originTemplateId": "template-2026届毕业论文-设计-通用模板",
+        "schoolName": "北京大学",
+        "confidenceScore": 0.99,
+        "createdAt": 1773755418009,
+        "updatedAt": 1773815312684
+      },
+      {
+        "id": "template-2026届毕业论文-设计-通用模板",
+        "name": "2026届毕业论文（设计）通用模板",
+        "source": "user-uploaded",
+        "documentKind": "sample-paper",
+        "formatSpecId": "cn-undergraduate-graduation-thesis-v1",
+        "thesisType": "graduation-thesis",
+        "educationLevel": "undergraduate",
+        "originalFileName": "2026届毕业论文（设计）通用模板.docx",
+        "sections": [
+          {
+            "key": "cover",
+            "label": "封面",
+            "detected": true,
+            "order": 1,
+            "startAnchorText": "毕s业s论s文",
+            "confidence": 0.9
+          },
+          {
+            "key": "declaration",
+            "label": "独创性声明",
+            "detected": true,
+            "order": 2,
+            "startAnchorText": "原创性声明",
+            "confidence": 0.9
+          },
+          {
+            "key": "authorization",
+            "label": "授权书",
+            "detected": true,
+            "order": 3,
+            "startAnchorText": "授权书",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-zh",
+            "label": "中文摘要",
+            "detected": true,
+            "order": 4,
+            "startAnchorText": "摘s要",
+            "confidence": 0.9
+          },
+          {
+            "key": "abstract-en",
+            "label": "英文摘要",
+            "detected": true,
+            "order": 5,
+            "startAnchorText": "abstract",
+            "confidence": 0.9
+          },
+          {
+            "key": "toc",
+            "label": "目录",
+            "detected": true,
+            "order": 6,
+            "startAnchorText": "目s录",
+            "confidence": 0.95
+          },
+          {
+            "key": "body",
+            "label": "正文",
+            "detected": true,
+            "order": 7,
+            "startAnchorText": "s1、s",
+            "confidence": 0.9
+          },
+          {
+            "key": "references",
+            "label": "参考文献",
+            "detected": true,
+            "order": 8,
+            "startAnchorText": "参考文献",
+            "confidence": 0.9
+          },
+          {
+            "key": "acknowledgements",
+            "label": "致谢",
+            "detected": true,
+            "order": 9,
+            "startAnchorText": "致谢",
+            "confidence": 0.9
+          },
+          {
+            "key": "appendix",
+            "label": "附录",
+            "detected": true,
+            "order": 10,
+            "startAnchorText": "附录",
+            "confidence": 0.9
+          }
+        ],
+        "fieldAnchors": [
+          {
+            "key": "college",
+            "label": "学院",
+            "anchorText": "学    院：",
+            "confidence": 0.92
+          },
+          {
+            "key": "major",
+            "label": "专业",
+            "anchorText": "专    业：",
+            "confidence": 0.92
+          },
+          {
+            "key": "className",
+            "label": "班级",
+            "anchorText": "班    级：",
+            "confidence": 0.92
+          },
+          {
+            "key": "studentId",
+            "label": "学号",
+            "anchorText": "学    号：",
+            "confidence": 0.92
+          },
+          {
+            "key": "completionDate",
+            "label": "完成日期",
+            "anchorText": "日期：",
+            "confidence": 0.92
+          }
+        ],
+        "styleRoles": [
+          {
+            "role": "body-text",
+            "fontFamily": "待识别",
+            "confidence": 0.35
+          },
+          {
+            "role": "heading-1",
+            "confidence": 0.62
+          },
+          {
+            "role": "heading-2",
+            "confidence": 0.56
+          },
+          {
+            "role": "heading-3",
+            "confidence": 0.5
+          },
+          {
+            "role": "abstract-title-zh",
+            "confidence": 0.82
+          },
+          {
+            "role": "abstract-title-en",
+            "confidence": 0.82
+          },
+          {
+            "role": "toc-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "reference-title",
+            "confidence": 0.85
+          },
+          {
+            "role": "cover-title",
+            "styleId": "3",
+            "styleName": "header",
+            "fontSizePt": 9,
+            "bold": false,
+            "alignment": "both",
+            "confidence": 0.35
+          }
+        ],
+        "pageRule": {
+          "paperSize": "A4",
+          "marginsCm": {
+            "top": 2.5,
+            "right": 2.5,
+            "bottom": 2.5,
+            "left": 2.8
+          },
+          "hasDifferentFirstPage": false,
+          "pageNumberStart": 1,
+          "pageNumberFormat": "decimal",
+          "footerText": "Ⅰ",
+          "pageNumberPosition": "right"
+        },
+        "confirmationItems": [
+          {
+            "id": "field-title",
+            "type": "field",
+            "label": "题目字段确认",
+            "description": "未稳定识别到封面题目字段，请确认题目锚点位置。",
+            "confidence": 0.2,
+            "resolved": false,
+            "targetKey": "title"
+          },
+          {
+            "id": "style-heading-1",
+            "type": "style",
+            "label": "heading-1 样式确认",
+            "description": "系统初步推断了 heading-1，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.62,
+            "resolved": false,
+            "targetKey": "heading-1"
+          },
+          {
+            "id": "style-heading-2",
+            "type": "style",
+            "label": "heading-2 样式确认",
+            "description": "系统初步推断了 heading-2，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.56,
+            "resolved": false,
+            "targetKey": "heading-2"
+          },
+          {
+            "id": "style-heading-3",
+            "type": "style",
+            "label": "heading-3 样式确认",
+            "description": "系统初步推断了 heading-3，但置信度不足，建议在模板确认中校正。",
+            "confidence": 0.5,
+            "resolved": false,
+            "targetKey": "heading-3"
+          }
+        ],
+        "version": 1,
+        "schoolName": "北京大学",
+        "confidenceScore": 0.99,
+        "createdAt": 1773755418009,
+        "updatedAt": 1773755418014
+      }
+    ]
+  }
+}
