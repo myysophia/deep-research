@@ -532,6 +532,82 @@ function parseMarkdownTable(lines: string[], start: number) {
   return { rows, nextIndex: cursor - 1 };
 }
 
+function decodeHtmlTableText(text: string) {
+  return text
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeBrokenHtmlTable(html: string) {
+  return html
+    .replace(/<(html|table|thead|tbody|tr)(?=[\s<])/gi, "<$1>")
+    .replace(/<\/(html|table|thead|tbody|tr)(?=[\s<])/gi, "</$1>")
+    .replace(/<\/(th|td|strong)(?=[\s<])/gi, "</$1>")
+    .replace(/<(th|td)([^>]*)\s+(?=<)/gi, "<$1$2>")
+    .replace(/<\/(th|td|strong)(?=<)/gi, "</$1>")
+    .replace(/<\/html\s*$/i, "</html>")
+    .replace(/<\/table\s*$/i, "</table>");
+}
+
+function parseHtmlTableRows(html: string) {
+  const normalized = normalizeBrokenHtmlTable(html);
+  const tableMatch = normalized.match(/<table\b[\s\S]*?>([\s\S]*?)<\/table>/i);
+  const tableContent = tableMatch?.[1] || normalized;
+  const rowMatches = [...tableContent.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)];
+
+  return rowMatches
+    .map((rowMatch) =>
+      [...rowMatch[1].matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]>/gi)].map(
+        (cellMatch) =>
+          decodeHtmlTableText(cellMatch[1].replace(/<[^>]+>/g, " "))
+      )
+    )
+    .filter((row) => row.length > 0);
+}
+
+function collectHtmlTableBlock(lines: string[], start: number) {
+  const buffer: string[] = [];
+  let cursor = start;
+
+  while (cursor < lines.length) {
+    const line = lines[cursor];
+    buffer.push(line);
+    const normalizedLine = line.toLowerCase();
+    if (
+      normalizedLine.includes("</table>") ||
+      normalizedLine.includes("</html>") ||
+      normalizedLine.includes("</table") ||
+      normalizedLine.includes("</html")
+    ) {
+      break;
+    }
+    cursor += 1;
+  }
+
+  return {
+    html: buffer.join("\n"),
+    nextIndex: Math.min(cursor, lines.length - 1),
+  };
+}
+
+function isHtmlTableStart(lines: string[], index: number) {
+  const trimmed = lines[index]?.trim().toLowerCase();
+  if (!trimmed) return false;
+  return (
+    trimmed.startsWith("<table") ||
+    trimmed.startsWith("<html>") ||
+    trimmed.startsWith("<html ") ||
+    trimmed.startsWith("<html<table") ||
+    trimmed.startsWith("<html <table")
+  );
+}
+
 function isMarkdownTable(lines: string[], index: number) {
   return (
     index + 1 < lines.length &&
@@ -617,6 +693,17 @@ function buildMarkdownBlocks(
     if (/^(-{3,}|_{3,}|\*{3,})$/.test(trimmed)) {
       flushParagraph();
       continue;
+    }
+
+    if (isHtmlTableStart(lines, index)) {
+      flushParagraph();
+      const { html, nextIndex } = collectHtmlTableBlock(lines, index);
+      const rows = parseHtmlTableRows(html);
+      if (rows.length > 0) {
+        blocks.push(buildThreeLineTable(rows));
+        index = nextIndex;
+        continue;
+      }
     }
 
     if (isMarkdownTable(lines, index)) {
@@ -1052,21 +1139,23 @@ function buildArtifactNodes(
 
   if (artifact.type === "table") {
     nodes.push(createCaption(caption, "table"));
-    const rows = artifact.content
-      .split("\n")
-      .filter(Boolean)
-      .filter(
-        (line, index) =>
-          !(index === 1 && /^(\|\s*[-:]+\s*)+\|?$/.test(line.trim()))
-      )
-      .map((line) =>
-        line
-          .trim()
-          .replace(/^\|/, "")
-          .replace(/\|$/, "")
-          .split("|")
-          .map((cell) => cell.trim())
-      );
+    const rows = /<table\b|<html\b/i.test(artifact.content)
+      ? parseHtmlTableRows(artifact.content)
+      : artifact.content
+          .split("\n")
+          .filter(Boolean)
+          .filter(
+            (line, index) =>
+              !(index === 1 && /^(\|\s*[-:]+\s*)+\|?$/.test(line.trim()))
+          )
+          .map((line) =>
+            line
+              .trim()
+              .replace(/^\|/, "")
+              .replace(/\|$/, "")
+              .split("|")
+              .map((cell) => cell.trim())
+          );
     if (rows.length > 0) {
       nodes.push(buildThreeLineTable(rows));
     }
