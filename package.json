@@ -1,7 +1,7 @@
 {
   "name": "ai-thesis-writer",
   "description": "AI论文撰写智能体 - AI-powered academic thesis writing assistant with deep research capabilities",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/u14app/deep-research"
