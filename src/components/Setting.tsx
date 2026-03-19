@@ -93,7 +93,6 @@ type SettingProps = {
 };
 
 const BUILD_MODE = process.env.NEXT_PUBLIC_BUILD_MODE;
-const VERSION = process.env.NEXT_PUBLIC_VERSION;
 const DISABLED_AI_PROVIDER = process.env.NEXT_PUBLIC_DISABLED_AI_PROVIDER || "";
 const DISABLED_SEARCH_PROVIDER =
   process.env.NEXT_PUBLIC_DISABLED_SEARCH_PROVIDER || "";
@@ -3756,10 +3755,6 @@ function Setting({ open, onClose }: SettingProps) {
                     </Button>
                   </div>
                 ) : null}
-                <div className="from-item">
-                  <Label className="from-label">{t("setting.version")}</Label>
-                  <div className="form-field text-center leading-9">{`v${VERSION}`}</div>
-                </div>
                 <div className="from-item">
                   <Label className="from-label">
                     {t("setting.resetSetting")}
