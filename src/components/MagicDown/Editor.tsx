@@ -28,8 +28,13 @@ function Editor({
   const { t } = useTranslation();
   const isMobile = useMobile(750);
   const markdownEditorRef = useRef<HTMLDivElement>(null);
+  const onChangeRef = useRef(onChange);
   const [markdownEditor, setMarkdownEditor] = useState<MagicdownEditor>();
   const [content, setContent] = useState<string>(defaultValue);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   // Update editor content when external data changes, such as data streams received from a server
   useEffect(() => {
@@ -46,6 +51,7 @@ function Editor({
       placeholder: t("editor.placeholder"),
       onChange: (value) => {
         setContent(value);
+        onChangeRef.current(value);
       },
       i18n: {
         tooltip: {
@@ -160,7 +166,6 @@ function Editor({
             className
           )}
           ref={markdownEditorRef}
-          onBlur={() => onChange(content)}
         ></div>
       </ResizablePanel>
       {isMobile || hideView ? null : (
