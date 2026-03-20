@@ -25,7 +25,7 @@ docker build -f Dockerfile.optimized -t ai-thesis-writer .
 docker run -d -p 3000:3000 ai-thesis-writer
 ```
 
-详细文档：[Docker 部署指南](./docs/DOCKER_DEPLOYMENT.md)
+详细文档：[Docker 部署指南](../DOCKER_DEPLOYMENT.md)
 
 ## 🎨 品牌定制
 
@@ -41,7 +41,7 @@ NEXT_PUBLIC_APP_DESCRIPTION=AI-powered thesis writing platform
 
 ### 完整 OEM 配置
 
-参考 [env.tpl](./env.tpl) 中的 OEM 配置部分。
+参考 [env.tpl](../../env.tpl) 中的 OEM 配置部分。
 
 ## 📚 功能说明
 
@@ -85,6 +85,6 @@ docker-compose -f docker-compose.production.yml \
 
 ## 📖 更多文档
 
-- [Docker 部署](./docs/DOCKER_DEPLOYMENT.md)
-- [环境变量配置](./env.tpl)
+- [Docker 部署](../DOCKER_DEPLOYMENT.md)
+- [环境变量配置](../../env.tpl)
 - [README](./README.md)

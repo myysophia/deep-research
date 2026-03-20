@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+/论文/
+/论文撰写智能体-黑总/
 
 # debug
 npm-debug.log*
