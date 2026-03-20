@@ -1,16 +1,7 @@
 version: "3.9"
 services:
   deep-research:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://jaotyxuadwoiwzrrzdma.supabase.co}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        SUPABASE_URL: ${SUPABASE_URL:-https://jaotyxuadwoiwzrrzdma.supabase.co}
-        SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
-        SAAS_MVP_ENABLED: ${SAAS_MVP_ENABLED:-0}
-    image: crpi-ywue2o6mpn8qaq0l.cn-hangzhou.personal.cr.aliyuncs.com/tangshu/deep-research:latest
+    image: crpi-ywue2o6mpn8qaq0l.cn-hangzhou.personal.cr.aliyuncs.com/tangshu/deep-research:v1.0.4
     container_name: deep-research
     env_file:
       - .env
